@@ -189,4 +189,5 @@ public interface QualityTemplateConvertor {
 
 - 前置条件是批准的数据架构、Repository 策略和 Slice Contract。
 - PO/Repository/Convertor 骨架可受控生成；复杂查询、分页语义、数据源、事务、迁移和并发使用 `behavior-tdd`。
+- Web Request/Response、Application model、Domain model 与 PO 必须保持明确转换边界，禁止 PO 直接充当接口响应。公开业务模型默认一个类型一个文件；`*Models`、`*Utils`、`*Manager` 等容器必须有清晰边界，不能混合 Web、Application、Domain 和 Infrastructure 职责。
 - 返回统一 `YSS Skill Execution Result`，证据包含实际文件、集成测试、MapStruct/Lombok 配置和 `./mvnw ...` 结果。

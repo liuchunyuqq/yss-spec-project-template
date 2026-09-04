@@ -36,6 +36,7 @@ com.yss.{module}.rest
 
 - **Command (写)**: 使用 `@PostMapping`/`@PutMapping` + `@RequestBody` + `{Domain}Cmd` 对象。
 - **Query (读)**: 使用 `@PostMapping` (for complex search) + `@RequestBody` + `{Domain}Page/Query` 对象。
+- **Model Boundary**: Controller Request/Command/Query 与 Response/VO 使用明确的 client/web 模型和包；一个公开业务模型默认一个文件，不用聚合式 `*Models` public static 内部类承载公开契约，也不让 Repository PO 直接成为 HTTP 返回模型。
 - **Wrapper**:
   - `SingleResult<T>`: 单个对象或基本类型。
   - `MultiResult<T>`: 列表。

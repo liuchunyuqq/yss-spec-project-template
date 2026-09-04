@@ -21,9 +21,10 @@ Read `references/source-index.md` as a path-hint index whenever the task depends
 
 1. Read `references/source-index.md`, then read `readme.md` before changing exception behavior.
 2. Classify the failure as business exception, known system exception, or unknown exception.
-3. Use `ExceptionFactory` and `ResultErrorCode` conventions instead of ad-hoc runtime exceptions when creating YSS component errors.
-4. Check `YssGlobalExceptionProperties` when global exception output/logging behavior is configurable.
-5. Keep logging semantics aligned: business exceptions usually do not require error-stack logging; system/unknown exceptions usually do.
+3. First determine whether a frozen OpenAPI contract, a shared error-code registry, or an existing project convention has assigned an error code. Only then use the matching `ExceptionFactory` / `ResultErrorCode` convention.
+4. For an expected and catchable business, parameter, or file-validation failure with no assigned code, prefer the project's default failure result such as `Result.buildFailure(exception.getMessage())`; do not invent a stable local code or response protocol.
+5. Check `YssGlobalExceptionProperties` when global exception output/logging behavior is configurable.
+6. Keep logging semantics aligned: business exceptions usually do not require error-stack logging; system/unknown exceptions usually do.
 
 ## Current Source Behavior
 
@@ -42,6 +43,8 @@ Read `references/source-index.md` as a path-hint index whenever the task depends
 
 - Required dependency or starter module is present.
 - Error code/message are meaningful to API consumers.
+- Every explicit error code is traceable to a frozen contract, shared registry, or established project convention.
+- Catchable failures without an assigned code use the existing default failure builder instead of a business-local wrapper or `setCode` sequence.
 - Response messages are sanitized and do not expose raw RuntimeException or localized exception details.
 - Business validation failures are not reported as unknown system errors.
 - Stack traces are preserved for unknown/system failures.
@@ -51,5 +54,6 @@ Read `references/source-index.md` as a path-hint index whenever the task depends
 ## Do Not
 
 - Do not invent class names or configuration keys without checking the source index.
+- Do not create business-local `RBC_*`-style codes, custom `SingleResult` assembly, or a second response protocol without an approved contract source.
 - Do not replace component extension points with business-local framework code.
 - Do not broaden the task into unrelated YSS components unless the user asks.

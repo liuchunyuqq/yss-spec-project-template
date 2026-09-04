@@ -335,6 +335,12 @@ skills:
     instance_default_discoverable: false
     aliases: []
     impacts: [backend]
+  - id: yss-backend-runtime-verification
+    layer: specialist
+    maturity: draft
+    instance_default_discoverable: false
+    aliases: []
+    impacts: [backend, quality]
   - id: yss-cache
     layer: specialist
     maturity: supported
@@ -428,6 +434,12 @@ skills:
   - id: yss-mybatis
     layer: specialist
     maturity: supported
+    instance_default_discoverable: false
+    aliases: []
+    impacts: [backend]
+  - id: yss-mvc-scaffold-generator
+    layer: specialist
+    maturity: draft
     instance_default_discoverable: false
     aliases: []
     impacts: [backend]

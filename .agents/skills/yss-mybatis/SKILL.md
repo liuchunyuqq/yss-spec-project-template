@@ -51,11 +51,13 @@ description: 用于 YSS MyBatis 与 MyBatis-Plus 持久层规范、配置和排�
 ## 排障顺序
 
 1. 确认依赖模块：starter、mapper、plus starter、persistence common。
-2. 确认 Mapper/Repository 扫描范围。
-3. 确认分页参数、分页切面或插件是否参与调用。
-4. 确认 XML、方法签名、resultMap/字段映射是否一致。
-5. 确认多数据源配置和当前线程数据源上下文。
-6. 最后再排查 SQL 本身和数据库执行计划。
+2. 确认实际 Mapper/Repository 包和自动配置的默认扫描范围；包名约定不是扫描成功证据。
+3. 核对扫描配置的消费阶段。若扫描器属于 `BeanDefinitionRegistryPostProcessor` 等早期扩展点，确认属性是否在常规配置绑定完成前已经被读取。
+4. 配置文件存在但启动日志持续显示默认值时，停止移动 YAML 文件试错；读取组件源码、配置属性类和初始化日志，优先采用框架明确支持的注解扩展点，例如项目侧 `@MapperScan`。
+5. 确认分页参数、分页切面或插件是否参与调用。
+6. 确认 XML、方法签名、resultMap/字段映射是否一致。
+7. 确认多数据源配置和当前线程数据源上下文。
+8. 最后再排查 SQL 本身和数据库执行计划。
 
 ## 修改约束
 
@@ -74,4 +76,5 @@ description: 用于 YSS MyBatis 与 MyBatis-Plus 持久层规范、配置和排�
 
 - 仅在数据架构、Repository 策略和批准合同明确时使用。
 - Mapper/XML 骨架可受控生成；查询语义、分页、数据源切换和事务行为使用 `behavior-tdd`。
+- 新增或移动 Repository 后，证据必须证明非 Mock profile 中至少一个真实 Repository/Mapper Bean 已注册；命中数据库运行态影响时再由 `yss-backend-runtime-verification` 验证最小真实查询。
 - 按统一 `YSS Skill Execution Result` 返回 Mapper/XML/配置、集成测试、实际 `./mvnw ...` 结果和新增 SQL/DDL/索引影响。

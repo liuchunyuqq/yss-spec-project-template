@@ -169,6 +169,7 @@ dependency_closure:
   yss-repository:
     always: [mapstruct, lombok, alibaba-java-code-style]
     when_mybatis: [yss-mybatis]
+    when_runtime_registration_or_database_smoke: [yss-backend-runtime-verification]
   yss-web-controller:
     always: [yss-dto, mapstruct, lombok, alibaba-java-code-style]
   yss-userinfo:
@@ -210,6 +211,12 @@ component_impact_routing:
   request-validation: [yss-validation, yss-exception]
   error-mapping: [yss-exception, yss-dto]
   encryption-or-signing: [yss-security-algorithm, yss-exception]
+  runtime-profile-change: [yss-backend-runtime-verification]
+  repository-registration: [yss-mybatis, yss-backend-runtime-verification]
+  configuration-center-loading: [yss-backend-runtime-verification]
+  external-file-resource: [yss-application, yss-backend-runtime-verification]
+  oracle-nls: [yss-mybatis, yss-backend-runtime-verification]
+  package-content-verification: [yss-backend-runtime-verification]
 
 end_to_end_backend_required:
   - yss-domain
