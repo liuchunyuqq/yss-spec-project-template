@@ -33,7 +33,7 @@ YSS 模板工程是一套可版本化的研发治理系统。它用仓库身份�
 | 产品线 | 模板源 | 实例化 CLI | 生命周期边界 |
 |---|---|---|---|
 | 全产品生命周期 | `yss-spec-project-template` | `create-yss-spec` | 从 Discovery 到发布与复盘 |
-| DDD 战略设计交接 | `yss-strategic-design-harness` | `create-yss-harness-design` | 从机会、需求和战略设计到 Strategic Design Handoff |
+| DDD 战略设计交接 | `yss-harness-design-agent` | `create-yss-harness-design` | 从机会、需求和战略设计到 Strategic Design Handoff |
 | 开发落地 | `yss-harness-dev-agent` | `create-yss-harness-dev` | 从已批准 Spec 或战略设计交接包到 Tactical Design、Slice Contract、实现与验证 |
 
 每条产品线使用独立的 profile、metadata 和固定模板 commit。CLI 之间遇到其他产品线的 metadata 时必须 fail closed，不能自动接管。
@@ -48,7 +48,7 @@ YSS 模板工程是一套可版本化的研发治理系统。它用仓库身份�
 
 ### 5.2 技能供应链
 
-`.agents/skills` 是跨 Agent 共享技能的权威内容。`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.hermes/skills`、`.pi/skills`、`.qoder/skills` 和 `.trae/skills` 是生成投影。
+`.agents/skills` 是跨 Agent 共享技能的权威内容。`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.pi/skills`、`.qoder/skills` 和 `.trae/skills` 是生成投影。
 
 `docs/agents/yss-skill-registry.yaml` 管理技能分层、成熟度、别名和运行时发现；`skills-lock.json` 管理来源、版本、hash 与投影完整性。修改共享技能后必须同步投影并更新 lock，不能分别编辑平台副本。
 

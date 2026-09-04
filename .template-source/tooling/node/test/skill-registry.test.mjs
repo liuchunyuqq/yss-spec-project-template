@@ -1,11 +1,20 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
 
 import { loadSkillRegistry, validateSkillRegistry } from "../../../../scripts/lib/skill-registry.mjs";
+import { parseDocument } from "../../../../scripts/vendor/yaml.mjs";
+import { ROOT } from "../../../../scripts/lib/skill-supply-chain.mjs";
 
 function registry(overrides = {}) {
   const base = loadSkillRegistry();
   return { ...base, ...overrides, runtime_policy: { ...base.runtime_policy, ...overrides.runtime_policy } };
+}
+
+function compilerContract() {
+  const source = readFileSync(path.join(ROOT, ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml"), "utf8");
+  return parseDocument(source, { maxAliasCount: 0, uniqueKeys: true }).toJS({ maxAliasCount: 0 });
 }
 
 test("unknown layer is rejected", () => {
@@ -15,8 +24,8 @@ test("unknown layer is rejected", () => {
 });
 
 test("shadow registry cannot be marked as runtime consumed", () => {
-  const data = registry({ status: "shadow", runtime_policy: { consumed_by_router: true, consumed_by_lifecycle: false, discovery_enforced: false } });
-  assert.throws(() => validateSkillRegistry(data), /shadow 注册表不得被 Router/);
+  const data = registry({ status: "shadow", runtime_policy: { consumed_by_compiler: true, consumed_by_lifecycle: false, discovery_enforced: false } });
+  assert.throws(() => validateSkillRegistry(data), /shadow 注册表不得被实现合同编译器/);
 });
 
 test("alias that collides with another id is rejected", () => {
@@ -47,6 +56,27 @@ test("skill invocation contract is required and derives impact triggers", () => 
   assert.throws(() => validateSkillRegistry(invalid), /primary_output/);
 });
 
+test("typed dependency metadata rejects unregistered skills", () => {
+  const data = registry();
+  data.skill_dependencies = structuredClone(data.skill_dependencies);
+  data.skill_dependencies["yss-domain"].push({ skill: "missing-static-dependency", type: "context-required" });
+  assert.throws(() => validateSkillRegistry(data), /依赖引用了未登记技能/);
+});
+
+test("context-required typed dependencies reject cycles", () => {
+  const data = registry();
+  data.skill_dependencies = structuredClone(data.skill_dependencies);
+  data.skill_dependencies["alibaba-java-code-style"] = [{ skill: "yss-domain", type: "context-required" }];
+  assert.throws(() => validateSkillRegistry(data), /context-required 依赖存在循环/);
+});
+
+test("实现合同编译器合同不得重复 typed dependency 事实", () => {
+  const data = registry();
+  const contract = compilerContract();
+  contract.skill_dependencies = {};
+  assert.throws(() => validateSkillRegistry(data, { compilerContract: contract }), /不得重复注册表事实: skill_dependencies/);
+});
+
 test("platform aliases resolve lifecycle external runtime entries", () => {
   const data = registry();
   const route = {
@@ -58,6 +88,21 @@ test("platform aliases resolve lifecycle external runtime entries", () => {
   };
   assert.doesNotThrow(() => validateSkillRegistry(data, {
     lifecycleContract: { work_unit_routes: { "work-unit.external-design": route } }
+  }));
+});
+
+test("deprecated research alias resolves to yss-research in lifecycle routes", () => {
+  const data = registry();
+  const research = data.skills.find((skill) => skill.id === "yss-research");
+  assert.ok(research?.aliases?.includes("research"));
+  assert.doesNotThrow(() => validateSkillRegistry(data, {
+    lifecycleContract: { work_unit_routes: { "work-unit.alias-research": {
+      primary_skill: "research",
+      supporting_skills: [],
+      skills: ["research"],
+      applies_when: "external_fact_requires_validation",
+      not_applicable_reason: "no_external_fact"
+    } } }
   }));
 });
 
@@ -115,7 +160,7 @@ function findingDisposition(overrides = {}) {
       kinds: ["drift", "new_impacts", "required_skills_mismatch"],
       mark_contract: "stale",
       continue_coding_on_old_contract: "forbidden",
-      next: "router-or-earlier-lifecycle"
+      next: "compiler-or-earlier-lifecycle"
     },
     exemption_policy: {
       not_applicable: "impact_not_triggered_only",

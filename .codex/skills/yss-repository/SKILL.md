@@ -1,6 +1,6 @@
 ---
 name: yss-repository
-description: Use when generating or refactoring YSS persistence models, BaseRepository/MyBatis repositories, MapStruct convertors, Domain Gateway implementations, or metadata/DDL-backed queries.
+description: Use when generating or refactoring YSS Infrastructure persistence models, repositories, MapStruct convertors, Domain Gateway implementations, or metadata/DDL-backed queries.
 ---
 
 # yss-repository
@@ -21,31 +21,35 @@ description: Use when generating or refactoring YSS persistence models, BaseRepo
 
 ## 工作方式
 
-1. 先确认输入来源：领域模型、metadata、数据库表、DDL。
-2. 探测持久化 profile：新 DDD 默认 `PO <-> Domain Model`；legacy YSS 常见 `Entity + BaseRepository + GatewayImpl`。沿用现有工程命名，不混用两套模型。
+1. 先确认批准且版本当前的 Slice Implementation Contract、数据架构、领域模型和既有 Domain Gateway/Application Query Port；缺任一前置项即返回 `blocked` / `new_impacts`，不得从 DDL 反向猜测领域端口。
+2. 确认持久化 Profile 为 `mybatis-plus` 与 `PO <-> Domain Model`；`Entity + BaseRepository + DTO/VO GatewayImpl` 等旧架构对新脚手架为 `unsupported`。
 3. 如果 metadata 不完整，先补齐 metadata、数据库表结构或 DDL 输入。
-4. 涉及 POJO 字段、getter/setter、constructor、builder 或日志时，必须加载并遵守 `lombok`。
-5. 涉及持久化模型与 Domain/VO/CMD 转换时，必须加载并遵守 `mapstruct`。
-6. 生成代码时严格保持 Domain 与 Infrastructure 分层边界。
-7. 默认先生成基础 CRUD 骨架，把复杂查询留给手工实现。
+4. 加载并遵守固定 Profile 的 `yss-mybatis`，不得在本 skill 内维护第二套 Mapper、分页或 SQL 安全规则。
+5. 涉及 POJO 字段、getter/setter、constructor、builder 或日志时，必须加载并遵守 `lombok`。
+6. 涉及持久化模型与 Domain/Application Result 转换时，必须加载并遵守 `mapstruct`；Infrastructure 不生成 Web VO/CMD 转换。
+7. 生成代码时严格保持 Domain 与 Infrastructure 分层边界。
+8. 默认先生成基础 CRUD 骨架，把复杂查询留给手工实现。
 
 ## 产物范围
 
-- `domain/{segment}/gateway/*Gateway.java`
-- `repository/entity/*PO.java`（legacy profile 沿用 `*Entity.java`）
-- `repository/*Repository.java`
-- `repository/convertor/*Convertor.java`
-- `repository/gateway/impl/*GatewayImpl.java`
+- `infrastructure/persistence/po/*PO.java`
+- `infrastructure/persistence/repository/*Repository.java`
+- `infrastructure/persistence/convertor/*Convertor.java`
+- `infrastructure/persistence/gateway/*GatewayImpl.java`
+- `infrastructure/query/adapter/*QueryAdapter.java`（实现 Application Query Port）
+- `infrastructure/query/convertor/*QueryConvertor.java`
 
 ## 约束
 
 - Domain 不依赖 Infrastructure。
 - Gateway 定义在 Domain，实现放在 Infrastructure。
+- `yss-repository` 不创建或改写 Domain Gateway interface；缺少或需要改变 Gateway 时返回 `new_impacts`，由 实现合同编译器 回到 `yss-domain` / `yss-tactical-design`。
+- Domain Gateway 只交换 Domain Model、领域值和标识；分页、列表和读模型走 Application Query Port，禁止返回 Web VO 或把 `PageQuery` 带入 Domain。
 - PO / Domain Model 等 POJO 样板代码优先使用 Lombok；不要成片手写 getter/setter、constructor、builder 或 logger。
-- Convertor 必须优先使用 MapStruct；禁止 `BeanUtils.copyProperties`、反射式通用拷贝和重复手写字段赋值，除非实现合同记录受控例外、测试和 review 证据。
+- Convertor 必须优先使用 `@Mapper(componentModel = "spring")` 和构造器注入；禁止静态 `INSTANCE`、`BeanUtils.copyProperties`、反射式通用拷贝和重复手写字段赋值，除非实现合同记录受控例外、测试和 review 证据。
 - MapStruct 与 Lombok 同时使用时，必须确认注解处理器顺序和 `lombok-mapstruct-binding` 配置；构建命令使用项目根目录 `./mvnw ...`。
 - 逻辑删除、审计字段、主键策略要显式处理，不要隐式略过。
-- 事务放在批准的 Application 用例边界；legacy GatewayImpl 已有事务时先记录并测试迁移影响，不重复嵌套制造假边界。
+- 事务放在批准的 Application 用例边界；检测到旧 GatewayImpl 事务布局时返回 `unsupported`，不在 scaffold 链路内迁移。
 
 ## 质量门禁
 
@@ -53,7 +57,7 @@ description: Use when generating or refactoring YSS persistence models, BaseRepo
 - 命名、包路径、注解要与工程现有规范一致。
 - Convertor 必须有 MapStruct 接口 / 抽象类、生成实现可编译，必要时补 mapper 单测或覆盖核心字段转换的行为测试。
 - POJO 使用 Lombok 时不得引入 `@Data` 造成实体 equals / toString 风险；有关系字段、敏感字段或懒加载字段时按 `lombok` skill 排除。
-- 遇到无法自动判断的字段或规则时，写 TODO 或向用户说明，不要假装已确认。
+- 遇到无法自动判断的字段、映射或查询规则时返回 `new_impacts` / `drift` 并暂停，不要把 TODO 当作已完成实现。
 
 ## 协同顺序
 
@@ -70,7 +74,7 @@ description: Use when generating or refactoring YSS persistence models, BaseRepo
 
 ## 阶段 7 合同
 
-- 前置条件：数据架构、领域元数据、实现仓库和批准后的 `Slice Implementation Contract` 均可用；否则不执行本 skill，由 Router 返回 `blocked`。
+- 前置条件：数据架构、领域元数据、实现仓库和批准后的 `Slice Implementation Contract` 均可用；否则不执行本 skill，由 实现合同编译器 返回 `blocked`。
 - PO/Repository/Convertor 骨架可使用 `controlled-generation`；复杂过滤、分页语义、并发、事务和迁移行为必须拆为 `behavior-tdd`。
 - 写入仅限合同 `allowed_write_paths`，证据必须包含实际 PO、Repository、Convertor、GatewayImpl、测试和 `./mvnw ...` 结果。
 - 按统一 `YSS Skill Execution Result` 返回 `seam_deferred/deviations/new_impacts`；发现数据模型、DDL、SQL、索引或 API schema 变化时暂停并重路由。

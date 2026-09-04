@@ -1,5 +1,18 @@
 # 操作日志
 
+## [2026-09-04] REFRESH | 移除 Kiro、Hermes 与 Gemini 平台支持
+- changed: AGENTS.md, README.md, skills-maintenance.md, yss-skill-registry.yaml, skills-lock.json
+- articles: 技能投影与锁定
+- unmapped: docs/agents/digital-human-roles.yaml (No material)
+- unmapped: docs/agents/digital-human-roles.md (No material)
+- unmapped: docs/process/template-engineering-overview.md (No material)
+- unmapped: docs/process/template-verification-profiles.yaml (No material)
+- unmapped: docs/user-guide/yss-ui-mcp.md (No material)
+- unmapped: .agents/skills/.yss-skills-manifest.json (No material)
+- unmapped: .agents/skills/yss-ui/assets/docs/guide/llms.md (No material)
+
+移除三个运行时入口、其 MCP 配置与 Hermes 技能投影；同步锁文件派生摘录，并刷新 [[技能投影与锁定]] 的运行时根列表。
+
 ## [2026-08-09] CREATE | 初始化 yss-spec-project-template 知识 wiki 骨架
 
 创建三层结构：`raw/`（不可变源）、文章目录、`index.md`、`log.md`、`CLAUDE.md`。
@@ -69,3 +82,9 @@ wiki-root 从仓库根 `wiki/` 迁到 `.template-source/wiki`。同步 raw 中�
 - articles: 仓库身份与路由, 模板总览, Agent入口规则
 
 模板源不再维护实时治理 ADR；`adr-0002` 映射与 raw 副本已退役，仓库身份改由 `yss-project.yaml`、`AGENTS.md` 和实例化合同直接提供事实。
+
+## [2026-09-04] REFRESH | 后端技能控制面 schema v2 与硬替换
+- changed: AGENTS.md, CONTEXT.md, lifecycle-registry.yaml, harness-process-tailoring.md, skills-maintenance.md, yss-skill-registry.yaml, spec-template.md, vertical-slice-ticket-template.md, skills-lock.json
+- articles: Agent入口规则, 产品研发生命周期, 影响面分诊与流程裁剪, 模板维护流程, 切片实现合同, YSS路由与合同编译, YSS工程技能体系, 技能投影与锁定, 实现仓库与跨仓库契约, LLM Wiki, Ticket与流程状态, Fresh验证与独立审查
+
+同步 live 源与 raw，把运行时注册表升级为 active schema v2；明确 capability / Recipe / typed dependency 与 digest freshness，并使用 `yss-implementation-contract-compiler` 和 `yss-skill-source-index-refresh` 替换旧技能 ID。

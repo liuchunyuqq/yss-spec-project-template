@@ -24,7 +24,7 @@ function validateMattContract(data) {
   ensure(includesAll(setup?.preserves, ["lifecycle.status", "gate.status", "ticket.role"]) && setup?.legacy_artifacts_detected?.action === "migration-check" && setup.legacy_artifacts_detected.setup === "forbidden" && setup.legacy_artifacts_detected.write === "paused", "setup 暂停或旧资产迁移暂停契约不完整");
   const grill = data.grill_exit;
   ensure(includesAll(grill?.required, ["frontier_empty", "facts_resolved_or_routed", "decisions_confirmed", "shared_understanding_confirmed", "no_unresolved_runnable_blocker"]) && grill?.user_confirmation_required === true, "grill_exit 缺少 frontier、事实路由、决策、共同理解、用户确认或 runnable blocker 条件");
-  ensure(grill?.facts_resolved_or_routed?.technical_fact === "research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
+  ensure(grill?.facts_resolved_or_routed?.technical_fact === "yss-research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
   const git = data.git_authorization;
   for (const action of ["commit", "push"]) {
     const prefix = action === "commit" ? "commit" : "push";
@@ -40,8 +40,8 @@ function validateMattContract(data) {
 function validateInvocationBoundary(data) {
   const boundary = data.matt_invocation_boundary;
   const expectedUserInvoked = ["ask-matt", "grill-me", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "loop-me", "setup-matt-pocock-skills", "setup-ts-deep-modules", "teach", "to-questionnaire", "to-spec", "to-tickets", "triage", "wait-what", "wayfinder", "writing-beats", "writing-fragments", "writing-shape"];
-  const expectedModelInvoked = ["code-review", "codebase-design", "diagnosing-bugs", "domain-modeling", "grilling", "migrate-to-shoehorn", "prototype", "research", "resolving-merge-conflicts", "scaffold-exercises", "setup-pre-commit", "tdd", "writing-for-agents"];
-  const expectedLifecycleModelInvoked = ["code-review", "codebase-design", "diagnosing-bugs", "domain-modeling", "grilling", "prototype", "research", "tdd"];
+  const expectedModelInvoked = ["code-review", "codebase-design", "diagnosing-bugs", "domain-modeling", "grilling", "migrate-to-shoehorn", "prototype", "resolving-merge-conflicts", "scaffold-exercises", "setup-pre-commit", "tdd", "writing-for-agents", "yss-research"];
+  const expectedLifecycleModelInvoked = ["code-review", "codebase-design", "diagnosing-bugs", "domain-modeling", "grilling", "prototype", "tdd", "yss-research"];
   ensure(JSON.stringify(boundary?.user_invoked_skills) === JSON.stringify(expectedUserInvoked), "Matt user-invoked skills 清单不完整或已漂移");
   ensure(JSON.stringify(boundary?.lifecycle_managed_user_entries) === JSON.stringify(["setup-matt-pocock-skills", "grill-with-docs", "to-spec", "to-tickets", "implement"]), "生命周期管理的显式用户入口清单不完整");
   ensure(boundary?.lifecycle_may_invoke_user_invoked === false && boundary?.formal_artifact_owner === "explicit-user-entry", "生命周期仍可能自动调用 user-invoked skill 或产出其正式资产");
@@ -59,7 +59,14 @@ function validateInvocationBoundary(data) {
   ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation", "openapi-freeze", "merge-or-release"]), "生命周期人工门禁集合已漂移");
   const routes = data.work_unit_routes;
   ensure(routes?.["work-unit.discovery-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.discovery-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
-  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "research", "机会调研事实路由不准确");
+  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.discovery-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
+  const strategyResearch = routes?.["work-unit.domain-strategy-design"]?.research_contract;
+  ensure(strategyResearch?.profile === "strategy-evidence" && strategyResearch.mode_before_gate === "evidence-audited" && strategyResearch.artifact_owner === "yss-research" && strategyResearch.downstream_owner === "yss-stage-decision", "领域战略研究合同缺少 profile、门禁前审计或资产所有权边界");
+  const stageDecisionResearch = routes?.["work-unit.stage-decision"]?.research_contract;
+  ensure(routes?.["work-unit.stage-decision"]?.skills?.includes("yss-research") && stageDecisionResearch?.profile === "strategy-evidence" && stageDecisionResearch.mode_before_gate === "evidence-audited" && stageDecisionResearch.artifact_owner === "yss-research" && stageDecisionResearch.downstream_owner === "yss-stage-decision", "阶段决策工作单元缺少 evidence-audited 战略研究合同");
+  const prototypeRoute = routes?.["work-unit.prototype-design"];
+  ensure(!prototypeRoute?.skills?.includes("yss-ui") && !prototypeRoute?.supporting_skills?.includes("yss-ui"), "原型工作单元不得调用生产实现技能 yss-ui");
+  ensure(JSON.stringify(Object.keys(prototypeRoute?.profile_contract?.profiles ?? {})) === JSON.stringify(["H1", "H2"]) && prototypeRoute?.version_boundary?.prototype_must_not_call === "yss-ui", "原型档位必须仅包含 H1/H2 并明确 yss-ui 边界");
   ensure(routes?.["work-unit.slice-implementation"]?.skills?.includes("tdd") && routes?.["work-unit.slice-implementation"]?.skills?.includes("yss-ui") && routes?.["work-unit.slice-implementation"]?.skills?.includes("yss-ui-business-page-generation"), "原生实现工作单元缺少 TDD、UI 或业务页面生成路由");
   const frontendRoute = routes?.["work-unit.slice-implementation"]?.frontend_route;
   ensure(frontendRoute?.primary_skill === "yss-ui" && frontendRoute?.page_generation_skill === "yss-ui-business-page-generation" && frontendRoute?.page_orchestration_skill === "yss-page-module-development", "前端实现路由缺少 yss-ui 主入口、业务页面生成或页面编排技能");
@@ -73,7 +80,7 @@ function validateInvocationBoundary(data) {
   const disposition = reviewRoute?.review_standards_route?.finding_disposition;
   ensure(includesAll(disposition?.same_loop_for, ["product-slice", "template-maintenance"]) && disposition?.reviewer_write_implementation === "forbidden", "审查 finding 闭环未同时覆盖产品切片与模板维护，或允许审查者写实现");
   ensure(includesAll(disposition?.repair_then_full_rereview?.kinds, ["violation", "machine_check_failure", "blank_applicable_row", "missing_evidence"]) && disposition?.repair_then_full_rereview?.actor === "implementer" && disposition?.repair_then_full_rereview?.then === "recapture_candidate_and_rerun_all_axes", "violation 类 finding 未要求实现者修复后全轴复审");
-  ensure(includesAll(disposition?.stale_and_reroute?.kinds, ["drift", "new_impacts", "required_skills_mismatch"]) && disposition?.stale_and_reroute?.continue_coding_on_old_contract === "forbidden" && disposition?.stale_and_reroute?.next === "router-or-earlier-lifecycle", "drift / new_impacts 未要求合同 stale 并回 Router");
+  ensure(includesAll(disposition?.stale_and_reroute?.kinds, ["drift", "new_impacts", "required_skills_mismatch"]) && disposition?.stale_and_reroute?.continue_coding_on_old_contract === "forbidden" && disposition?.stale_and_reroute?.next === "compiler-or-earlier-lifecycle", "drift / new_impacts 未要求合同 stale 并回 实现合同编译器");
   ensure(disposition?.exemption_policy?.not_applicable === "impact_not_triggered_only" && disposition?.exemption_policy?.mandatory_waiver === "forbidden" && includesAll(disposition?.exemption_policy?.allowed_exits, ["repair", "seam-deferred-complete"]) && disposition?.exemption_policy?.new_human_waiver_gate === "forbidden", "审查豁免策略允许未命中以外的 not-applicable 或 mandatory 豁免");
   ensure(data.review_input?.unique_default_skill === "code-review" && data.review_input?.second_generic_review_skill === "forbidden" && data.review_input?.completed_requires_specialist_coverage === true && data.review_input?.finding_disposition_required === true && data.review_input?.completed_requires_no_open_mandatory_violations === true && data.review_input?.completed_requires_no_blank_applicable_rows === true && data.review_input?.reviewer_write_implementation === "forbidden" && includesAll(data.review_input?.standards_sources, ["slice_contract_required_skills", "specialist_check_inputs", "review_report_template"]), "review_input 未强制专项检查覆盖或 finding 闭环完成条件");
   for (const id of ["work-unit.spec-synthesis", "work-unit.ticket-decomposition", "work-unit.slice-implementation"]) {
@@ -180,13 +187,13 @@ const profiles = {
   },
   prototype: {
     message: "原型到后端脚手架及后续 YSS 代码生成压力场景验证通过",
-    files: [".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs", ".agents/skills/yss-router/references/router-contract.yaml"],
+    files: [".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs", ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml"],
     markers: [[".agents/skills/yss-product-lifecycle/SKILL.md", "controlled-generation"]]
   },
-  router: {
-    message: "YSS Router stage 7 scenarios passed",
-    files: [".agents/skills/yss-router/references/router-contract.yaml", ".agents/skills/yss-router/SKILL.md"],
-    markers: [[".agents/skills/yss-router/references/router-contract.yaml", "slice_contract_required"]]
+  implementationContractCompiler: {
+    message: "YSS implementation contract compiler stage 7 scenarios passed",
+    files: [".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml", ".agents/skills/yss-implementation-contract-compiler/SKILL.md"],
+    markers: [[".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml", "impact_to_capabilities"], [".agents/skills/yss-implementation-contract-compiler/SKILL.md", "required_capabilities"]]
   },
   openapiYaml: {
     message: "OpenAPI YAML-first 场景验证通过",

@@ -11,7 +11,7 @@ Use this skill for YSS 异常组件. Keep implementation grounded in the local p
 
 ## Source Index First
 
-- Backend source location is environment-specific; resolve it with `yss-source-index/references/source-location.md`.
+- Backend source location is environment-specific; resolve it with `yss-skill-source-index-refresh/references/source-location.md`.
 - Generated index: `references/source-index.md`
 - Component path hints: `yss-microservice-components/yss-component-exception`
 
@@ -21,10 +21,10 @@ Read `references/source-index.md` as a path-hint index whenever the task depends
 
 1. Read `references/source-index.md`, then read `readme.md` before changing exception behavior.
 2. Classify the failure as business exception, known system exception, or unknown exception.
-3. First determine whether a frozen OpenAPI contract, a shared error-code registry, or an existing project convention has assigned an error code. Only then use the matching `ExceptionFactory` / `ResultErrorCode` convention.
-4. For an expected and catchable business, parameter, or file-validation failure with no assigned code, prefer the project's default failure result such as `Result.buildFailure(exception.getMessage())`; do not invent a stable local code or response protocol.
-5. Check `YssGlobalExceptionProperties` when global exception output/logging behavior is configurable.
-6. Keep logging semantics aligned: business exceptions usually do not require error-stack logging; system/unknown exceptions usually do.
+3. 先确认冻结 OpenAPI、共享错误码注册表或既有工程约定是否已分配错误码；再使用对应的 `ExceptionFactory` 和 `ResultErrorCode`，不得凭业务局部需求自造稳定码。
+4. Check `YssGlobalExceptionProperties` when global exception output/logging behavior is configurable.
+5. Keep logging semantics aligned: business exceptions usually do not require error-stack logging; system/unknown exceptions usually do.
+6. In the `target-domain-model` profile, Domain owns stable error meaning and parameters but does not depend directly on YSS `BizException` or HTTP. Translate at the Web boundary after verifying the component handler precedence.
 
 ## Current Source Behavior
 
@@ -43,17 +43,16 @@ Read `references/source-index.md` as a path-hint index whenever the task depends
 
 - Required dependency or starter module is present.
 - Error code/message are meaningful to API consumers.
-- Every explicit error code is traceable to a frozen contract, shared registry, or established project convention.
-- Catchable failures without an assigned code use the existing default failure builder instead of a business-local wrapper or `setCode` sequence.
+- 每个显式错误码都可追溯到冻结契约、共享注册表或既有工程约定；未分配稳定码的可捕获失败使用工程既有默认失败构造器。
 - Response messages are sanitized and do not expose raw RuntimeException or localized exception details.
 - Business validation failures are not reported as unknown system errors.
 - Stack traces are preserved for unknown/system failures.
 - Retry guidance matches exception type.
 - Known system failures use `ExceptionFactory.sysException(..., cause)`; Application code does not replace them with ad-hoc `RuntimeException`.
+- Endpoint contract tests cover business, known-system, and unknown/runtime failures; unknown public messages never expose `getLocalizedMessage()`.
 
 ## Do Not
 
 - Do not invent class names or configuration keys without checking the source index.
-- Do not create business-local `RBC_*`-style codes, custom `SingleResult` assembly, or a second response protocol without an approved contract source.
 - Do not replace component extension points with business-local framework code.
 - Do not broaden the task into unrelated YSS components unless the user asks.

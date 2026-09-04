@@ -44,7 +44,7 @@ runtimes:
     side_effect_approval: biological-human
     notes: >-
       覆盖 docs/agents/yss-skill-registry.yaml 的 agent_runtime_roots
-      （claude / codex / cursor / hermes / pi / qoder / trae）。
+      （claude / codex / cursor / pi / qoder / trae）。
       技能仍从 .agents/skills 投影，不按职称再维护一份。
   - id: runtime.grok
     kind: grok-bot
@@ -68,7 +68,7 @@ orchestrator:
   title: YSS 生命周期主控
   default_dual_hat: [role.project-manager]
   stages: [stage.entry-triage, stage.discovery, stage.spec-architecture, stage.product-design, stage.system-data-engineering, stage.ticket-formalization, stage.vertical-slice-implementation, stage.verification-release-retrospective]
-  core_skills: [yss-product-lifecycle, yss-router]
+  core_skills: [yss-product-lifecycle, yss-implementation-contract-compiler]
   forbidden_skills: [yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement]
   description: >-
     Own YSS lifecycle routing. Read yss-project.yaml and CONTEXT.md first.
@@ -86,7 +86,7 @@ roles:
     title: YSS 需求经理
     stages: [stage.discovery, stage.spec-architecture]
     draft_artifact_ids: [artifact.discovery-record, artifact.spec]
-    core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
+    core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
     forbidden_skills: [yss-ui, yss-domain, yss-web-controller, yss-repository, yss-ddd-scaffold-generator, yss-frontend-scaffold-generator, implement, tdd]
     description: >-
       Own Discovery language, users, MVP, non-goals, success criteria, test
@@ -101,7 +101,7 @@ roles:
     title: YSS 产品经理
     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.verification-release-retrospective]
     draft_artifact_ids: [artifact.product-overview, artifact.functional-architecture, artifact.interaction-spec, artifact.state-matrix, artifact.prototype-confirmation]
-    core_skills: [yss-design-system, yss-prototype-stage, prototype-review, yss-antd-design, research, competitive-intelligence]
+    core_skills: [yss-design-system, yss-prototype-stage, prototype-review, yss-antd-design, yss-research, competitive-intelligence]
     forbidden_skills: [yss-ui, yss-domain, yss-repository, yss-web-controller, yss-ddd-scaffold-generator, implement, tdd]
     description: >-
       Own priority, product-design impact, interaction, state matrix, prototype
@@ -152,7 +152,7 @@ roles:
     title: YSS 后端工程师
     stages: [stage.system-data-engineering, stage.ticket-formalization, stage.vertical-slice-implementation, stage.verification-release-retrospective]
     draft_artifact_ids: [artifact.openapi-draft, artifact.data-architecture]
-    core_skills: [yss-router, yss-tactical-design, yss-domain, yss-application, yss-repository, yss-mybatis, yss-web-controller, yss-dto, mapstruct, lombok, alibaba-java-code-style, yss-exception, yss-validation, tdd, yss-ddd-scaffold-generator]
+    core_skills: [yss-implementation-contract-compiler, yss-tactical-design, yss-domain, yss-application, yss-repository, yss-mybatis, yss-web-controller, yss-dto, mapstruct, lombok, alibaba-java-code-style, yss-exception, yss-validation, tdd, yss-ddd-scaffold-generator]
     forbidden_skills: [yss-ui, yss-page-module-development, yss-formily, yss-frontend-scaffold-generator, yss-antd-design, page-list-module, page-form-module]
     description: >-
       Own OpenAPI Draft, data-architecture contributions, and backend tests.

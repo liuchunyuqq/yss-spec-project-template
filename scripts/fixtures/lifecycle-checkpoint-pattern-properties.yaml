@@ -1,0 +1,21 @@
+schema_version: 1
+mode: route
+status: routing
+stage: stage.entry-triage
+artifacts:
+  artifact.repository-identity:
+    status: approved
+    ref: yss-project.yaml
+    evidence_refs: [yss-project.yaml]
+gates:
+  gate.repository-identity-valid:
+    status: not-evaluated
+    reason: 等待入口分诊完成
+    evidence_refs: []
+next_work_unit: work-unit.discovery-requirements
+ticket_sync: {}
+verification: {}
+human_review: {}
+git_checkpoint: {}
+blockers: []
+rollback: []

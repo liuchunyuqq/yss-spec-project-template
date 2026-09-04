@@ -3,23 +3,8 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { DEFAULT_REGISTRY, ROOT, loadRegistry, validateRegistry } from "./lib/lifecycle-registry.mjs";
+import { validateJsonSchema } from "./lib/json-schema.mjs";
 import { isTemplateSource } from "./lib/repository-mode.mjs";
-
-const schemaValidator = String.raw`
-import json
-import sys
-from jsonschema import Draft202012Validator
-
-with open(sys.argv[1], encoding="utf-8") as schema_file:
-    schema = json.load(schema_file)
-registry = json.load(sys.stdin)
-errors = sorted(Draft202012Validator(schema).iter_errors(registry), key=lambda error: list(error.absolute_path))
-if errors:
-    for error in errors:
-        location = ".".join(str(part) for part in error.absolute_path) or "<root>"
-        print(f"{location}: {error.message}", file=sys.stderr)
-    sys.exit(1)
-`;
 
 function run(command, args, options = {}) {
   return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", ...options });
@@ -32,8 +17,7 @@ try {
   const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
   if (schema.properties?.schema_version?.const !== 1) throw new TypeError("生命周期注册表 JSON Schema 缺少 schema_version 约束");
   const registry = loadRegistry(registryPath);
-  const schemaResult = run("python3", ["-c", schemaValidator, schemaPath], { input: JSON.stringify(registry) });
-  if (schemaResult.status !== 0) throw new TypeError(`JSON Schema 校验失败: ${schemaResult.stdout}${schemaResult.stderr}`);
+  validateJsonSchema(registry, schemaPath, { label: "生命周期注册表 JSON Schema" });
   validateRegistry(registry);
   if (registryPath === DEFAULT_REGISTRY) {
     const generated = run("node", ["scripts/node-generate-lifecycle-artifacts.mjs", "--check"]);

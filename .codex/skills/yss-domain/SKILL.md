@@ -7,7 +7,7 @@ description: 用于构建或重构 YSS 领域层代码。当用户要求设计�
 
 这是一个领域实现 skill。核心目标是消费已批准的战术模型，将领域行为落实为代码；战术模型的设计与批准由 `yss-tactical-design` 和 `yss-product-lifecycle` 负责。
 
-默认输出是新 DDD target profile；现有 YSS 组件仓库常见 `core/client/repository`、贫血对象和 VO 型 Gateway 只是 legacy profile，不得静默复制成新模块架构。
+本 skill 在新脚手架链路只支持 `target-domain-model`。`core/client/repository`、贫血对象和 VO 型 Gateway 对该链路均为 `unsupported`，不提供旧架构分支。
 
 ## 何时使用
 
@@ -41,13 +41,14 @@ description: 用于构建或重构 YSS 领域层代码。当用户要求设计�
 - Gateway 只暴露领域能力，不暴露持久化细节。
 - 对关键状态流转给出明确方法，如 `publish()`、`cancel()`、`terminate()`。
 - 明确 Aggregate Root、Entity identity、Value Object、不变量、Domain Event 和一致性边界；没有业务行为时不要伪造富领域模型。
-- 发现 legacy profile 时先记录迁移/兼容决策，不把 Repository Entity 当 Domain Entity。
+- 发现旧架构时停止套用新脚手架合同并返回 `unsupported`；旧项目继续按原工程维护，现代化改造单独立项。
 
 ## 质量要求
 
 - 命名体现业务语义，不照抄表名缩写。
 - 生成代码应可编译，且没有跨层依赖泄漏。
-- 对不确定规则写出假设或 TODO，不要伪装成已确认事实。
+- Domain Gateway interface 由本 skill 唯一拥有；Infrastructure 只能实现，不得由 `yss-repository` 反向创建或改写其签名。
+- 对不确定规则返回 `new_impacts` / `drift` 并暂停；不要把未批准假设或 TODO 写进实现冒充已确认事实。
 
 ## 协同顺序
 
@@ -58,12 +59,12 @@ description: 用于构建或重构 YSS 领域层代码。当用户要求设计�
 
 ## 分层开发规范
 
-脚手架生成或进入 Domain 实现前，必须加载 `references/domain-layer-guide.md`：其中定义 DTO/Gateway/Domain Service 包结构、命名、校验与示例，与本 skill 的建模约束一并生效。
+脚手架生成或进入 Domain 实现前，必须加载 `references/domain-layer-guide.md`：其中定义 Aggregate、Domain Gateway、Domain Error、依赖门禁与旧架构 `unsupported` 边界；HTTP DTO/VO 明确不属于 Domain。
 
 ## 阶段 7 合同
 
 - 只消费生命周期已批准的 `Slice Implementation Contract` 和当前 `work_unit`；不得扩大 `allowed_write_paths`。
 - `Slice Implementation Contract` 必须引用批准且版本当前的 `tactical_design_ref`；不得在实现阶段重新批准或替换聚合、不变量和一致性策略。
 - 领域规则、状态机和不变量必须使用 `behavior-tdd`，先形成失败测试，再实现最小行为。
-- 完成后按 `yss-router/references/yss-skill-execution-result.md` 返回统一 `YSS Skill Execution Result`：changed files、领域/测试证据、实际验证结果、偏离和新增影响。
+- 完成后按 `yss-implementation-contract-compiler/references/yss-skill-execution-result.md` 返回统一 `YSS Skill Execution Result`：changed files、领域/测试证据、实际验证结果、偏离和新增影响。
 - 发现新 API、权限、状态机、数据模型或架构影响时填入 `new_impacts` 并暂停，不得静默扩张切片。

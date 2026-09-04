@@ -11,7 +11,7 @@ Application 层用例编排 skill。负责协调 Domain 与 Gateway，定义事�
 
 - 用户要实现 Application Service、用例编排或 `@Transactional` 边界。
 - 用户要补 App 层 MapStruct Convertor 或跨聚合协调逻辑。
-- 脚手架生成完成后进入业务实现，Router 按 `backend_impact` 加载本 skill。
+- 脚手架生成完成后进入业务实现，实现合同编译器 按 `backend_impact` 加载本 skill。
 
 ## 不适用
 
@@ -21,16 +21,18 @@ Application 层用例编排 skill。负责协调 Domain 与 Gateway，定义事�
 
 ## 工作方式
 
-1. 先探测工程是新 DDD `application/domain/infrastructure/adapter` 还是 legacy `core/client/repository` profile。
+1. 确认工程来自 `target-domain-model`；`core/client/repository` 等旧架构对本脚手架链路为 `unsupported`。
 2. 确认 Use Case、Application 边界、事务边界已在批准合同中写明。
 3. 实现 AppService 时调用 Domain Service / Gateway，核心规则下沉 Domain。
-4. 涉及 POJO 样板加载 `lombok`；涉及 App 层转换加载 `mapstruct`。
-5. 详细包结构、注解、示例和 legacy 兼容说明见 `references/application-layer-guide.md`。
-6. 涉及文件、对象存储或其他远程资源与数据库组合写入时，先明确调用、提交、立即补偿和持久化补偿任务的顺序；远程资源不与数据库共享本地事务。
+4. Web DTO 转 Application Command/Result 属于 Web，PO 转 Domain 属于 Infrastructure；Application 内确有独立模型转换时才加载 `mapstruct`，并统一 Spring Bean 与构造器注入。
+5. 涉及文件、对象存储或其他远程资源与数据库组合写入时，明确调用、提交、立即补偿和持久化补偿任务的顺序；远程资源不与数据库共享本地事务。
+6. 详细包结构、注解、示例和旧架构阻断边界见 `references/application-layer-guide.md`。
 
 ## 产物范围
 
-- `application/.../service/*Service.java`（或 legacy `core/service`）
+- `application/.../command/*Command.java`、`application/.../query/*Query.java`、`application/.../result/*Result.java`
+- `application/.../port/*QueryPort.java`
+- `application/.../service/*Service.java`
 - `application/.../service/impl/*ServiceImpl.java`
 - `application/.../service/convertor/*Convertor.java`（MapStruct）
 
@@ -39,14 +41,14 @@ Application 层用例编排 skill。负责协调 Domain 与 Gateway，定义事�
 - 领域建模：`yss-domain`
 - 持久层：`yss-repository`
 - Web 适配：`yss-web-controller`
-- DTO 契约：`yss-dto`
+- Web DTO / Result 契约：`yss-dto` + `yss-web-controller`
 
 ## 阶段 7 合同
 
 - 只消费批准后的 `Slice Implementation Contract` 和当前 `work_unit`。
-- AppService 骨架可 `controlled-generation`；用例编排、事务、幂等、远程资源补偿、权限和失败行为必须 `behavior-tdd`。
+- AppService 骨架可 `controlled-generation`；用例编排、事务、幂等、权限和失败行为必须 `behavior-tdd`。
 - 远程资源组合写入至少验证成功、数据库失败、立即补偿失败、补偿重试和幂等删除，并通过已确认的 Controller/Application/事务/资源适配器 seam 观察行为。
-- 按 `yss-router/references/yss-skill-execution-result.md` 返回统一 `YSS Skill Execution Result`。
+- 按 `yss-implementation-contract-compiler/references/yss-skill-execution-result.md` 返回统一 `YSS Skill Execution Result`。
 - 发现新 API、权限、状态机或跨上下文影响时填入 `new_impacts` 并暂停。
 
 ## 按需读取

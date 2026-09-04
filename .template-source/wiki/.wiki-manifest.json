@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "wikiRoot": ".template-source/wiki",
-  "compiledAt": "2026-08-31T10:39:23.044Z",
-  "gitCommit": "37cc9257a0918eac187003c8f8098bfbaff2480b",
+  "compiledAt": "2026-09-04T06:27:49.442Z",
+  "gitCommit": "a428fc4884f5196dbcb1f9b7dd77ef5096b09d11",
   "profile": "documents",
   "sources": [
     {
@@ -11,7 +11,7 @@
       "livePath": "AGENTS.md",
       "rawPath": "raw/AGENTS.md",
       "role": "copy",
-      "sha256": "0b6894c2325a3ffcc1f55d1647732d7e02d6f05cc6ebc4082cb9a37637ecb480"
+      "sha256": "7a5bccbcaf419987e4ceacf50aa6c3225c8e3e66c56dadfcc9434a13d7c81ece"
     },
     {
       "id": "CONTEXT.md",
@@ -19,7 +19,7 @@
       "livePath": "CONTEXT.md",
       "rawPath": "raw/CONTEXT.md",
       "role": "copy",
-      "sha256": "49d9687910a187fb3c619815e34242663349ca25757e5c503d5a5072d2d33636"
+      "sha256": "2aa4fbb231a866487cf656ff16e69823b0b24c41c0873b49461567c4efd8cba4"
     },
     {
       "id": "README.md",
@@ -27,7 +27,7 @@
       "livePath": "README.md",
       "rawPath": "raw/README.md",
       "role": "copy",
-      "sha256": "d96361201b635d8af9fe82b772179e0acbb3ec981d3aaacd9e93b3a074d06b07"
+      "sha256": "76239a43a5df5ba9838b14229fa0d3fcae9c074584da2e73355db6f6e7856fae"
     },
     {
       "id": "yss-project.yaml",
@@ -43,7 +43,7 @@
       "livePath": "docs/process/lifecycle-registry.yaml",
       "rawPath": "raw/lifecycle-registry.yaml",
       "role": "copy",
-      "sha256": "d140f953f3e1487f8bb6831e0c924193abf39114519ffa0f108f359ec1a67829"
+      "sha256": "2c1f4414eace5993b7f8c1e080588f448909c3eb08a5733acad39761353d30b4"
     },
     {
       "id": "harness-process-tailoring.md",
@@ -51,7 +51,7 @@
       "livePath": "docs/process/harness-process-tailoring.md",
       "rawPath": "raw/harness-process-tailoring.md",
       "role": "copy",
-      "sha256": "638060a987a295d2ab60cdd01cb36cbb1450718d540bd4afb8c537b08a01a613"
+      "sha256": "1af6256e4dd8f658fd877c7927e587d7d2efb81bcc111958c519069fa9e0180d"
     },
     {
       "id": "maintenance-intensity.yaml",
@@ -67,7 +67,7 @@
       "livePath": "docs/process/implementation-repo-integration.md",
       "rawPath": "raw/implementation-repo-integration.md",
       "role": "copy",
-      "sha256": "9dad6ca3bd4a43938e091b287b55c78e93101cce5f208e74ed4add0746872999"
+      "sha256": "d7b18d59252e6e642e8f68d501d2291512619c65872e81555f605eff7dc97f4c"
     },
     {
       "id": "skills-maintenance.md",
@@ -75,7 +75,7 @@
       "livePath": "docs/agents/skills-maintenance.md",
       "rawPath": "raw/skills-maintenance.md",
       "role": "copy",
-      "sha256": "d4916d59c48513856d1e347564696121e4fedb28433af223d2c02ab82b2ba6eb"
+      "sha256": "90fec9e2834d812bf2e2c51b1041c1ac16ba950679d8c1d8533df6e073b2bc9c"
     },
     {
       "id": "yss-skill-registry.yaml",
@@ -83,7 +83,7 @@
       "livePath": "docs/agents/yss-skill-registry.yaml",
       "rawPath": "raw/yss-skill-registry.yaml",
       "role": "copy",
-      "sha256": "42744e744cec9d7cef3b285ea9bd52c21a7da9513dc93fc6665877687e0e049c"
+      "sha256": "4ce92f450cc7ab61db6a02724fc08dadc5467cc42c4edc18453c49292ffe02fd"
     },
     {
       "id": "issue-tracker.md",
@@ -107,7 +107,7 @@
       "livePath": ".template-source/contracts/create-yss-spec-repository-mode-contract.md",
       "rawPath": "raw/create-yss-spec-repository-mode-contract.md",
       "role": "copy",
-      "sha256": "2224a834cc4203907fc9cf0118f954f4042625656aad40b301fc540f523b8837"
+      "sha256": "449be078c0c11728b4312f35c8cd47f252504a81b641e13c9266c6d98b4ebbc1"
     },
     {
       "id": "spec-template.md",
@@ -115,7 +115,7 @@
       "livePath": "docs/templates/spec-template.md",
       "rawPath": "raw/spec-template.md",
       "role": "copy",
-      "sha256": "10d12f0d4c7c148afd74876d057afebdf0a97b65a21cdf2b67ca14a3ce804115"
+      "sha256": "c68a3b2acf907297a58e5f8719063d3695b419aa22a9708f27516119d5c6b122"
     },
     {
       "id": "vertical-slice-ticket-template.md",
@@ -123,7 +123,7 @@
       "livePath": "docs/templates/vertical-slice-ticket-template.md",
       "rawPath": "raw/vertical-slice-ticket-template.md",
       "role": "copy",
-      "sha256": "3da71f03bbff42d0f7bf19e557207d7e9855b2e95f6710cceaf7ae81b9e82f29"
+      "sha256": "d473a75f5e9c74b6a65258960ac4efb858bd1d2af5b1b9232db3c405f0f47321"
     },
     {
       "id": "skills-lock.json",
@@ -134,7 +134,7 @@
       "extract": {
         "kind": "skill-names"
       },
-      "sha256": "28e930aa2962c0a691eedae5a816a01c8633de0ee6b21c057bb5536066f017ed"
+      "sha256": "3d47e419b739eb639fadb30fb97e33ac0814d32d41ec031196e973498d92c928"
     }
   ],
   "articles": [
