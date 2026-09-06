@@ -45,6 +45,7 @@ description: Use when YSS `Result`, `SingleResult`, `MultiResult`, `PageResult`,
 - Application/Infrastructure 内部读参数可按项目 Profile 使用 `QueryDTO` 或 `PageQuery`。
 - 公开 HTTP Page Request 默认不继承 `PageQuery`，只复制冻结 OpenAPI 允许的分页字段，再由 WebConvertor 转为 Application Query；避免继承的 `offset`、`needTotalCount`、`tempTotalCount` 进入绑定面。
 - Controller 返回优先使用项目既有的 `Result` 或派生结果对象。
+- 可捕获失败若没有冻结契约或统一错误码中心分配的 code，优先使用现有 `Result.buildFailure(message)` 等默认失败构造；只有存在可追溯 code 依据时才使用 `buildFailure(code, message)`。
 - 单对象返回优先 `SingleResult`，列表返回优先 `MultiResult`，分页返回优先 `PageResult`，前提是当前项目已采用这套体系。
 - 三种泛型结果要求 `T extends Serializable`；生成的 VO/响应类型必须满足该编译约束。
 - OpenAPI 响应以 `YssResultMeta` 表达公共字段，并用 `allOf` 叠加 endpoint-specific `data` / page 字段；每个响应声明 `x-yss-response-wrapper: SingleResult|MultiResult|PageResult`，不得把 `SingleResult<T>` 文字写成 schema。
@@ -72,6 +73,7 @@ description: Use when YSS `Result`, `SingleResult`, `MultiResult`, `PageResult`,
 ## 修改约束
 
 - 不要在一个项目里混用多套返回包装类。
+- 不要通过 `setCode`、手工设置 `success/code/message` 或业务局部异常处理器重复实现 YSS DTO 已有的失败返回能力。
 - 不要新建与 `PageQuery` 含义重叠的分页基类。
 - 不要把 `com.yss.cloud.dto.response` 作为新 API 的 canonical 包，也不要从 Java getter 机械生成 wire schema。
 - 不要把 `offset`、`needTotalCount`、`tempTotalCount` 作为客户端分页输入；不要无证据把 `totalPages` 写入所有分页响应。

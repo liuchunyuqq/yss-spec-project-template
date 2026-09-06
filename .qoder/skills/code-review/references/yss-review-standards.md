@@ -11,7 +11,7 @@
 1. 仓库文档：`CODING_STANDARDS.md`、`CONTRIBUTING.md` 或实现仓等价文件（若存在）。
 2. Slice Implementation Contract 的 `required_skills`：对每个技能读取 `.agents/skills/<id>/SKILL.md` 及该 skill 指明的 references。
 3. 影响面专项检查输入（与合同并集，不得互相替代）：
-   - 后端：`alibaba-java-code-style`、`yss-domain`、`yss-application`、`yss-repository`、`yss-web-controller`、`yss-dto`、`mapstruct`、`lombok`
+   - 后端：`alibaba-java-code-style`、`yss-domain`、`yss-application`、`yss-repository`、`yss-web-controller`、`yss-dto`、`mapstruct`、`lombok`；运行 profile、Repository/Mapper 注册、配置中心、数据库驱动、外部资源或最终包内容受影响时追加 `yss-backend-runtime-verification`
    - UI：`yss-ui`、`yss-design-system`、`yss-ui-business-page-generation`、`yss-page-module-development`
 4. 报告模板中的后端 / 前端门禁表。空着的适用行视为 `missing_evidence`。
 
@@ -39,6 +39,8 @@ YSS 页面模块约定（YTable、YFormily、页面骨架等）走 Standards，�
 - mandatory Alibaba 或 YSS 门禁 `violation` 未关闭
 - 机器检查失败，或可检查规则既无工具结果也无原文引用
 - 用第二个通用审查 skill 代替 `code-review`
+
+后端 Standards 还要按影响面检查：显式错误码是否有冻结契约或统一目录依据；业务字段 Javadoc 是否解释歧义、布尔值、时间与单位；公开 HTTP 模型是否与 PO 和应用模型分离；Mock 启动、Mock 行为、非 Mock 注册和真实查询结论是否被准确区分；配置中心结论是否有运行时加载证据；POM、effective dependency 与最终 JAR 是否一致；远程资源与数据库组合写入是否覆盖补偿和幂等 seam。未命中相应影响时记录 `not-applicable`，不能把这些检查无条件升级为所有后端切片的门禁。
 
 ## 4. Finding 分流与豁免
 
