@@ -1,0 +1,6 @@
+{
+  "docs/agents/yss-skill-registry.yaml": "unchanged-from-HEAD",
+  ".template-source/tooling/node/vendor-entry-yaml.mjs": "unchanged-from-HEAD",
+  "scripts/lib/git-submodule-fixtures.mjs": "unchanged-from-HEAD",
+  "duplicate_mvc_ids_in_HEAD": 2
+}

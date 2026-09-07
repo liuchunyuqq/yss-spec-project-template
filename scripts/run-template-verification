@@ -6,7 +6,7 @@ import { assertRequiredFiles, planTemplateVerification, ROOT } from "./lib/templ
 
 function git(args) {
   const result = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
-  if (result.status !== 0) throw new TypeError(result.stderr.trim() || `git ${args.join(" ")} 执行失败`);
+  if (result.status !== 0) throw new TypeError((result.stderr || result.error?.message || "").trim() || `git ${args.join(" ")} 执行失败`);
   return result.stdout;
 }
 
@@ -72,8 +72,8 @@ function printResults(groups) {
 }
 
 function runValidator(command, args) {
-  const result = spawnSync(command, args, { cwd: ROOT, encoding: "utf8" });
-  if (result.status !== 0) throw new TypeError(result.stderr.trim() || `${command} 校验失败`);
+  const result = spawnSync(command.startsWith("scripts/") ? process.execPath : command, command.startsWith("scripts/") ? [command, ...args] : args, { cwd: ROOT, encoding: "utf8" });
+  if (result.status !== 0) throw new TypeError((result.stderr || result.error?.message || "").trim() || `${command} 校验失败`);
 }
 
 try {
@@ -101,7 +101,7 @@ try {
   if (major < 22 || major >= 27) throw new TypeError("模板工具需要 Node >=22 <27");
   assertRequiredFiles(plan);
   const before = git(["status", "--porcelain=v1", "-z"]);
-  const modeResult = spawnSync("scripts/repository-mode", [], { cwd: ROOT, encoding: "utf8" });
+  const modeResult = spawnSync(process.execPath, ["scripts/repository-mode", ], { cwd: ROOT, encoding: "utf8" });
   if (modeResult.status !== 0) throw new TypeError(modeResult.stderr.trim() || "仓库身份校验失败");
   const concurrency = Number(values.concurrency || plan.max_concurrency);
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new TypeError("concurrency 必须为 1..4");

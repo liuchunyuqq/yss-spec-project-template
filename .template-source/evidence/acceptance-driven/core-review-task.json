@@ -1,0 +1,54 @@
+{
+  "task_id": "acceptance-core-review",
+  "actor_id": "acceptance-reviewer",
+  "role_id": "role.test-engineer",
+  "runtime_id": "runtime.skill-projection",
+  "execution_state": "Reviewer",
+  "skill_source": {
+    "registry_ref": "docs/agents/digital-human-roles.yaml",
+    "core_skills": [
+      "tdd",
+      "diagnosing-bugs",
+      "code-review",
+      "alibaba-java-code-style",
+      "yss-ui",
+      "yss-design-system",
+      "yss-page-module-development",
+      "yss-domain",
+      "yss-application",
+      "yss-repository",
+      "yss-web-controller",
+      "yss-dto",
+      "mapstruct",
+      "lombok"
+    ],
+    "forbidden_skills": [
+      "yss-ddd-scaffold-generator",
+      "yss-frontend-scaffold-generator",
+      "implement",
+      "to-spec"
+    ]
+  },
+  "objective": "按用户批准的实施计划对验收驱动执行核心作独立聚焦审查；这是开发内审查，不提升到正式模板发布候选。检查自主推进和证据完成是否可绕过。",
+  "allowed_read_paths": [
+    "scripts/lib/acceptance-policy.mjs",
+    "scripts/lib/lifecycle-transition.mjs",
+    "scripts/lib/implementation-contract-compiler.mjs",
+    "scripts/acceptance-policy.test.mjs",
+    "scripts/verify-lifecycle-checkpoint",
+    "docs/process/acceptance-policy.yaml",
+    "docs/process/schemas/lifecycle-checkpoint-v2.schema.json"
+  ],
+  "allowed_write_paths": [
+    ".template-source/evidence/acceptance-driven/core-review.md"
+  ],
+  "forbidden_actions": [
+    "修改实现",
+    "提交或推送",
+    "批准发布"
+  ],
+  "verification_commands": [
+    "node --test scripts/acceptance-policy.test.mjs"
+  ],
+  "convergence": "返回主控修复，Reviewer 不写代码；报告须附实际检查和未关闭 finding。"
+}
