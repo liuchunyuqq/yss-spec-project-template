@@ -167,11 +167,11 @@ try {
   }
   rmSync(validFile, { force: true });
 
-  mustFail((value) => { value.contract.kind = "unknown"; }, /未知 contract.kind|not one of/, "unknown-contract-kind");
+  mustFail((value) => { value.contract.kind = "unknown"; }, /未知 contract.kind|not one of|不属于允许值/, "unknown-contract-kind");
   mustFail((value) => { value.contract.slice_contract_ref = contractRef; }, /不得携带专项合同引用/, "lifecycle-slice-ref");
   mustFail((value) => { delete value.contract.lifecycle_ref; }, /lifecycle_ref/, "lifecycle-missing-ref");
-  mustFail((value) => { value.contract.kind = "slice-implementation"; delete value.contract.slice_contract_ref; }, /slice_contract_ref/, "slice-missing-ref");
-  mustFail((value) => { value.contract.kind = "template-maintenance"; delete value.contract.maintenance_ref; }, /maintenance_ref/, "maintenance-missing-ref");
+  mustFail((value) => { delete value.contract.slice_contract_ref; }, /slice_contract_ref/, "slice-missing-ref", () => slicePackage("role.backend-engineer", "task-missing-ref", "work-unit.slice-backend", "apps/backend/todo/"));
+  mustFail((value) => { delete value.contract.maintenance_ref; }, /maintenance_ref/, "maintenance-missing-ref", templatePackage);
   mustFail((value) => { value.work_unit_id = "work-unit.intensity-aware-review"; value.contract.kind = "lifecycle-work-unit"; value.contract.lifecycle_ref = "docs/process/lifecycle-registry.yaml"; }, /template-source.*template-maintenance/, "template-source-lifecycle-kind");
   mustFail((value) => { value.work_unit_id = "work-unit.slice-implementation"; value.stage_id = "stage.vertical-slice-implementation"; value.contract.kind = "lifecycle-work-unit"; value.contract.lifecycle_ref = "docs/process/lifecycle-registry.yaml"; }, /不得冒充垂直切片/, "implementation-lifecycle-kind", () => lifecycleStagePackage("role.frontend-engineer", "task-illegal-implementation", "work-unit.slice-implementation", "stage.vertical-slice-implementation"));
   mustFail((value) => { value.convergence.parent_work_unit = "work-unit.code-review"; }, /必须汇合到 work-unit.slice-implementation/, "slice-wrong-parent", () => slicePackage("role.frontend-engineer", "task-slice-parent", "work-unit.slice-frontend", "apps/frontend/todo/"));

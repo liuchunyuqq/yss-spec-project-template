@@ -11,7 +11,7 @@ const isoNow = () => new Date().toISOString();
 async function isFile(target) { try { return (await stat(target)).isFile(); } catch (error) { if (error.code === "ENOENT") return false; throw error; } }
 async function writeText(target, content) { await mkdir(path.dirname(target), { recursive: true }); await writeFile(target, content, "utf8"); }
 async function isExecutable(target) {
-  try { const info = await stat(target); return info.isFile() && Boolean(info.mode & 0o111); }
+  try { const info = await stat(target); return info.isFile() && (process.platform === "win32" || Boolean(info.mode & 0o111)); }
   catch (error) { if (error.code === "ENOENT") return false; throw error; }
 }
 async function readTextIfPresent(target) { try { return await readFile(target, "utf8"); } catch (error) { if (error.code === "ENOENT") return ""; throw error; } }
@@ -45,7 +45,7 @@ function validateManifest(manifest) {
   if (manifest.current_version !== manifest.contract_version) throw new Error("脚手架生成元数据清单不是当前合同版本");
   if (JSON.stringify(manifest.verification_commands) !== JSON.stringify(COMMANDS)) throw new Error("脚手架生成元数据清单验证命令不符合固定合同");
 }
-function execute(wrapper, phase, cwd, environment) { return new Promise((resolve) => { const child = spawn(wrapper, [phase], { cwd, env: environment, stdio: ["ignore", "pipe", "pipe"] }); let stdout = "", stderr = ""; child.stdout.on("data", (chunk) => { stdout += chunk; }); child.stderr.on("data", (chunk) => { stderr += chunk; }); child.on("error", (error) => resolve({ exitCode: 127, stdout: "", stderr: String(error) })); child.on("close", (code) => resolve({ exitCode: code ?? 1, stdout, stderr })); }); }
+function execute(wrapper, phase, cwd, environment) { return new Promise((resolve) => { const child = spawn(process.platform === "win32" ? "sh" : wrapper, process.platform === "win32" ? [wrapper, phase] : [phase], { cwd, env: environment, stdio: ["ignore", "pipe", "pipe"] }); let stdout = "", stderr = ""; child.stdout.on("data", (chunk) => { stdout += chunk; }); child.stderr.on("data", (chunk) => { stderr += chunk; }); child.on("error", (error) => resolve({ exitCode: 127, stdout: "", stderr: String(error) })); child.on("close", (code) => resolve({ exitCode: code ?? 1, stdout, stderr })); }); }
 export async function run(projectRoot, evidenceDir, environment = process.env) {
   const wrapper = path.join(projectRoot, "mvnw"), manifestPath = path.join(projectRoot, ".yss", "scaffold-generation.json");
   if (!await isFile(wrapper)) throw new Error(`项目根目录缺少 Maven wrapper: ${wrapper}`);

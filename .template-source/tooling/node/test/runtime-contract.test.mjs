@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
@@ -10,7 +10,7 @@ const toolingRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const repositoryRoot = path.resolve(toolingRoot, "../../..");
 
 test("Node runtime contract exposes a vendored YAML parser for distributed scripts", async () => {
-  const yaml = await import(path.join(repositoryRoot, "scripts/vendor/yaml.mjs"));
+  const yaml = await import(pathToFileURL(path.join(repositoryRoot, "scripts/vendor/yaml.mjs")).href);
   const document = yaml.parseDocument("schema_version: 1\nrepository_mode: template-source\n", {
     maxAliasCount: 0
   });
@@ -19,7 +19,7 @@ test("Node runtime contract exposes a vendored YAML parser for distributed scrip
 });
 
 test("YAML aliases are rejected before a repository manifest is materialized", async () => {
-  const { readRepositoryMode } = await import(path.join(repositoryRoot, "scripts/lib/repository-mode.mjs"));
+  const { readRepositoryMode } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/repository-mode.mjs")).href);
   const fixture = await mkdtemp(path.join(tmpdir(), "yss-alias-"));
   try {
     await writeFile(path.join(fixture, "yss-project.yaml"), "schema_version: &version 1\nrepository_mode: template-source\ncopy: *version\n");
@@ -30,19 +30,19 @@ test("YAML aliases are rejected before a repository manifest is materialized", a
 });
 
 test("repository mode public seam is executable by Node", async () => {
-  const { readRepositoryMode } = await import(path.join(repositoryRoot, "scripts/lib/repository-mode.mjs"));
+  const { readRepositoryMode } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/repository-mode.mjs")).href);
   assert.equal(readRepositoryMode(repositoryRoot), "template-source");
 });
 
 test("vendored XML parser rejects DOCTYPE and preserves scalar text", async () => {
-  const { parseXmlDocument } = await import(path.join(repositoryRoot, "scripts/vendor/xml.mjs"));
+  const { parseXmlDocument } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/vendor/xml.mjs")).href);
   assert.throws(() => parseXmlDocument("<!DOCTYPE settings><settings/>"), /DOCTYPE/);
   const parsed = parseXmlDocument("<settings><username>001</username></settings>", { expectedRoot: "settings" });
   assert.equal(parsed.settings.username, "001");
 });
 
 test("implementation path policy preserves harness and external-repository boundaries", async () => {
-  const { violation } = await import(path.join(repositoryRoot, "scripts/lib/implementation-path-policy.mjs"));
+  const { violation } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/implementation-path-policy.mjs")).href);
   assert.equal(violation("apps/backend/project1/"), null);
   assert.match(violation("app/backend/project1/"), /singular app implementation root/);
   assert.match(violation("apps/backend/"), /container root/);
@@ -60,8 +60,8 @@ test("repository_scope git-submodule is a first-class layout distinct from harne
     regularDirectoryMisreadViolation,
     validRepositoryScope,
     violationRepositoryScope
-  } = await import(path.join(repositoryRoot, "scripts/lib/repository-scope-policy.mjs"));
-  const { makeGitlinkFixture } = await import(path.join(repositoryRoot, "scripts/lib/git-submodule-fixtures.mjs"));
+  } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/repository-scope-policy.mjs")).href);
+  const { makeGitlinkFixture } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/git-submodule-fixtures.mjs")).href);
   const record = {
     repository_scope: "git-submodule",
     layout_policy: LAYOUT_POLICIES["git-submodule"],
@@ -148,8 +148,8 @@ test("Node lifecycle registry verifier preserves the published semantic baseline
 test("public skill export preserves its portable manifest and blocks workstation paths", async () => {
   const output = await mkdtemp(path.join(tmpdir(), "yss-public-export-"));
   try {
-    execFileSync("scripts/export-yss-skills", ["--output", output], { cwd: repositoryRoot, encoding: "utf8" });
-    execFileSync("scripts/export-yss-skills", ["--output", output, "--check"], { cwd: repositoryRoot, encoding: "utf8" });
+    execFileSync(process.execPath, ["scripts/export-yss-skills", "--output", output], { cwd: repositoryRoot, encoding: "utf8" });
+    execFileSync(process.execPath, ["scripts/export-yss-skills", "--output", output, "--check"], { cwd: repositoryRoot, encoding: "utf8" });
     const manifest = JSON.parse(await (await import("node:fs/promises")).readFile(path.join(output, ".yss-export-manifest.json"), "utf8"));
     const catalogue = JSON.parse(await (await import("node:fs/promises")).readFile(path.join(output, "skills.sh.json"), "utf8"));
     assert.equal(manifest.format_version, 1);
@@ -169,7 +169,7 @@ test("evidence index writes pending and checkpointed Node records with legacy fa
   const review = path.join(fixture, ".template-source/evidence/reviews/sample.md");
   const command = path.join(repositoryRoot, ".template-source/scripts/evidence-index");
   const environment = { ...process.env, YSS_EVIDENCE_INDEX_ROOT: fixture };
-  const run = (args, options = {}) => execFileSync(command, args, { cwd: fixture, encoding: "utf8", env: environment, stdio: ["ignore", "pipe", "pipe"], ...options });
+  const run = (args, options = {}) => execFileSync(process.execPath, [command, ...args], { cwd: fixture, encoding: "utf8", env: environment, stdio: ["ignore", "pipe", "pipe"], ...options });
   try {
     await mkdir(path.dirname(review), { recursive: true });
     await writeFile(review, "# Sample evidence\n");

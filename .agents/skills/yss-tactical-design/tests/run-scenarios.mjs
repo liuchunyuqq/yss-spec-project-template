@@ -26,7 +26,7 @@ for (const [name, message] of blockedCases) {
 
 const temporaryRoot = await mkdtemp(join(tmpdir(), "yss-tactical-design-pressure-"));
 try {
-  const source = await readFile(fixture("valid-tactical-design.yaml"), "utf8");
+  const source = (await readFile(fixture("valid-tactical-design.yaml"), "utf8")).replaceAll("\r\n", "\n");
   const escalated = join(temporaryRoot, "missing-standalone-ref.yaml");
   await writeFile(escalated, `${source}\ncomplexity:\n  escalate_to_standalone: true\n`);
   const result = run(escalated);

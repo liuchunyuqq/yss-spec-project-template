@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 const toolingRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,9 +25,9 @@ test("digital human roles are runtime-agnostic and grok is only an adapter", asy
     skillIdsFromRegistry,
     validateDefaultDigitalHumanRoles,
     taskPackageDefaults
-  } = await import(path.join(repositoryRoot, "scripts/lib/digital-human-roles.mjs"));
-  const { loadRegistry } = await import(path.join(repositoryRoot, "scripts/lib/lifecycle-registry.mjs"));
-  const { loadSkillRegistry } = await import(path.join(repositoryRoot, "scripts/lib/skill-registry.mjs"));
+  } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/digital-human-roles.mjs")).href);
+  const { loadRegistry } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/lifecycle-registry.mjs")).href);
+  const { loadSkillRegistry } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/skill-registry.mjs")).href);
   const result = validateDefaultDigitalHumanRoles();
   assert.equal(result.role_count, 6);
   assert.equal(result.runtime_count, 3);
@@ -63,8 +63,8 @@ test("digital human roles are runtime-agnostic and grok is only an adapter", asy
 });
 
 test("approval records reject the wrong signer and approved countersign gates need approval_ref", async () => {
-  const { loadDigitalHumanRoles } = await import(path.join(repositoryRoot, "scripts/lib/digital-human-roles.mjs"));
-  const { validateApprovalRecord, assertCheckpointApprovals } = await import(path.join(repositoryRoot, "scripts/lib/approval-record.mjs"));
+  const { loadDigitalHumanRoles } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/digital-human-roles.mjs")).href);
+  const { validateApprovalRecord, assertCheckpointApprovals } = await import(pathToFileURL(path.join(repositoryRoot, "scripts/lib/approval-record.mjs")).href);
   const rolesDoc = loadDigitalHumanRoles();
   assert.throws(() => validateApprovalRecord({
     schema_version: 1,

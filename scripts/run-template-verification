@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { assertRequiredFiles, planTemplateVerification, ROOT } from "./lib/template-verification.mjs";
 
@@ -23,11 +23,17 @@ function collectChangedFiles(base) {
 function runCommand(command) {
   return new Promise((resolve) => {
     const started = Date.now();
-    const child = spawn(command, { cwd: ROOT, shell: true, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
+    const entry = /^(?:scripts\/|\.template-source\/scripts\/)[^\s]+/.exec(command)?.[0];
+    // cmd.exe does not honor Node shebangs on extensionless repository scripts.
+    const shebang = entry ? readFileSync(`${ROOT}/${entry}`, 'utf8').split('\n')[0] : '';
+    const interpreter = /\bnode\b/.test(shebang) ? process.execPath : /\bpython3?\b/.test(shebang) ? 'python' : null;
+    const executable = process.platform === 'win32' && entry && interpreter ? `"${interpreter}" ${command}` : command;
+    const child = spawn(executable, { cwd: ROOT, shell: true, env: { ...process.env, PYTHONUTF8: "1" }, stdio: ["ignore", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => { stdout += chunk; });
     child.stderr.on("data", (chunk) => { stderr += chunk; });
+    child.on("error", error => { stderr += error.message; });
     child.on("close", (code) => resolve({ command, code: code ?? 1, duration_ms: Date.now() - started, stdout, stderr }));
   });
 }
@@ -72,7 +78,8 @@ function printResults(groups) {
 }
 
 function runValidator(command, args) {
-  const result = spawnSync(command.startsWith("scripts/") ? process.execPath : command, command.startsWith("scripts/") ? [command, ...args] : args, { cwd: ROOT, encoding: "utf8" });
+  const isNodeScript = command.startsWith("scripts/") || command.startsWith(".template-source/scripts/");
+  const result = spawnSync(isNodeScript ? process.execPath : command, isNodeScript ? [command, ...args] : args, { cwd: ROOT, encoding: "utf8" });
   if (result.status !== 0) throw new TypeError((result.stderr || result.error?.message || "").trim() || `${command} 校验失败`);
 }
 

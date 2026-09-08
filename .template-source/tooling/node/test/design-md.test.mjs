@@ -32,7 +32,7 @@ test("DESIGN.md projection manifest is current", () => {
 });
 
 test("cross-repository design sync digest matches DESIGN.md", () => {
-  const source = readFileSync(path.join(repositoryRoot, "DESIGN.md"));
+  const source = readFileSync(path.join(repositoryRoot, "DESIGN.md"), 'utf8').replaceAll('\r\n', '\n');
   const sync = readFileSync(path.join(repositoryRoot, "docs/design/design-system-sync.yaml"), "utf8");
   const digest = createHash("sha256").update(source).digest("hex");
   assert.match(sync, new RegExp(`baseline_sha256: ${digest}`));

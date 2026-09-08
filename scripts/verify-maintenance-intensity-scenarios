@@ -182,10 +182,12 @@ const symlinkFixture = mkdtempSync(path.join(tmpdir(), "yss-maintenance-review-"
 try {
   const baseDir = path.join(symlinkFixture, "repo");
   mkdirSync(baseDir);
-  writeFileSync(path.join(symlinkFixture, "outside.md"), "# 聚焦独立审查\n\n审查者：reviewer.outside\n\n审查结论：pass\n");
-  symlinkSync(path.join(symlinkFixture, "outside.md"), path.join(baseDir, "review.md"));
+  const outsideDir = path.join(symlinkFixture, 'outside');
+  mkdirSync(outsideDir);
+  writeFileSync(path.join(outsideDir, "review.md"), "# 聚焦独立审查\n\n审查者：reviewer.outside\n\n审查结论：pass\n");
+  symlinkSync(outsideDir, path.join(baseDir, 'linked'), process.platform === 'win32' ? 'junction' : 'dir');
   let symlinkEscaped = false;
-  try { validateMaintenanceReviewEvidence({ kind: "focused-independent-review", command: "review.md" }, { baseDir }); } catch { symlinkEscaped = true; }
+  try { validateMaintenanceReviewEvidence({ kind: "focused-independent-review", command: "linked/review.md" }, { baseDir }); } catch { symlinkEscaped = true; }
   if (!symlinkEscaped) throw new TypeError("symlink 越界证据未被拒绝");
 } finally {
   rmSync(symlinkFixture, { recursive: true, force: true });

@@ -14,6 +14,23 @@ test('明确需求、改名、修复和范围内新依赖均自主推进，真�
   assert.equal(selectDevelopmentAction({ input_reason: 'variable-rename' }), 'diagnose');
   assert.equal(selectDevelopmentAction({ read_only: true }), 'route');
 });
+
+test('规范扩展校验当前合同、恢复工作单元和独立审查绑定', () => {
+  const f = fixture(); f.state.standards_context_version = 1;
+  Object.assign(f.state.slices[0], { standards_ref:'standards', standards_digest:'rules-v1', active_work_unit:'http', contract_ref:'contract', contract_version:'1' });
+  f.refs.standards = {digest:'rules-v1',context_plan:{work_units:[{work_unit:'http'}]}};
+  f.refs.contract = {contract_version:'1',status:'validated',resolution:{applicable_standards:f.refs.standards}};
+  f.refs['slice-review'].standards_digest='rules-v1';
+  f.refs['overall-review'].standards_digests={'slice-1':'rules-v1'};
+  f.options.verifyStandards=()=>({freshness:'current'});
+  assert.deepEqual(validateAcceptanceCheckpoint(f.state,f.options),[]);
+  f.refs['slice-review'].standards_digest='old';
+  assert(validateAcceptanceCheckpoint(f.state,f.options).includes('slice-standards-not-reviewed'));
+  f.state.status='running';f.options.verifyStandards=()=>({freshness:'stale'});
+  assert(validateAcceptanceCheckpoint(f.state,f.options).includes('slice-standards-stale'));
+  f.refs.contract.contract_version='2';
+  assert(validateAcceptanceCheckpoint(f.state,f.options).includes('slice-current-contract-required'));
+});
 test('validated 当前切片无需批准即可进入实现，过期与路径缺失不得进入', () => {
   const state = { schema_version: 2, policy_id: 'acceptance-driven-v1', slice_contract: { status: 'validated', current_version: true, persisted: true, ticket_ref: 'slice.md', acceptance_ids: ['AC-1'], allowed_write_paths: ['server/'] } };
   const options = { exists: ref => ref === 'slice.md' };
@@ -21,6 +38,13 @@ test('validated 当前切片无需批准即可进入实现，过期与路径缺�
   assert.equal(validateImplementationEntry({ ...state, stale: true }, options).result, 'blocked');
   assert.equal(validateImplementationEntry({ ...state, stale_inputs: ['openapi'] }, options).result, 'blocked');
   assert.equal(validateImplementationEntry({ ...state, slice_contract: { ...state.slice_contract, allowed_write_paths: [] } }, options).result, 'blocked');
+  state.standards_context_version = 1; state.active_work_unit = 'http';
+  assert.equal(validateImplementationEntry(state,options).result,'blocked');
+  state.slice_contract.resolution={applicable_standards:{context_plan:{work_units:[{work_unit:'http'}]}}};
+  options.verifyStandards=()=>({freshness:'current'});
+  assert.equal(validateImplementationEntry(state,options).result,'allowed');
+  options.verifyStandards=()=>({freshness:'stale'});
+  assert.equal(validateImplementationEntry(state,options).result,'blocked');
 });
 function fixture() {
   const inputs = { 'server/Query.java': 'current' };

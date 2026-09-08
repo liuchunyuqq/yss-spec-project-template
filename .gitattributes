@@ -1,2 +1,5 @@
 .template-source/evidence/maintenance/reviews/*/candidate.bin binary
 .template-source/evidence/maintenance/reviews/*/tracked.diff binary
+scripts/fixtures/maintenance-review/maintenance-review/** -text
+scripts/vendor/** -text
+.template-source/tooling/node/vendor-entry-*.mjs text eol=lf

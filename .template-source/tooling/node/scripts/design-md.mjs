@@ -3,9 +3,10 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { parseDocument } from "../vendor-entry-yaml.mjs";
+import { fileURLToPath } from "node:url";
+import { parseDocument } from "../../../../scripts/vendor/yaml.mjs";
 
-const repositoryRoot = path.resolve(new URL("../../../..", import.meta.url).pathname);
+const repositoryRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 const designPath = path.join(repositoryRoot, "DESIGN.md");
 const projectionDir = path.join(repositoryRoot, "docs/design/tokens");
 const manifestPath = path.join(projectionDir, ".design-md-projection.json");
@@ -14,11 +15,11 @@ const expectedSections = ["Overview", "Colors", "Typography", "Layout", "Elevati
 const requiredFrontmatter = ["version", "name", "description", "colors", "typography", "rounded", "spacing", "components"];
 const componentProperties = new Set(["backgroundColor", "textColor", "typography", "rounded", "padding", "size", "height", "width"]);
 
-function sha256(value) { return createHash("sha256").update(value).digest("hex"); }
+function sha256(value) { return createHash("sha256").update(value.toString().replaceAll("\r\n", "\n")).digest("hex"); }
 function fail(message) { throw new Error(message); }
 
 function readDesign(file = designPath) {
-  const source = readFileSync(file, "utf8");
+  const source = readFileSync(file, "utf8").replaceAll("\r\n", "\n");
   if (!source.startsWith("---\n")) fail(`${path.relative(repositoryRoot, file)} 缺少 YAML frontmatter`);
   const end = source.indexOf("\n---", 4);
   if (end < 0) fail(`${path.relative(repositoryRoot, file)} frontmatter 未闭合`);
@@ -53,8 +54,12 @@ function readDesign(file = designPath) {
 }
 
 function runUpstream(args) {
-  const result = spawnSync("npx", ["--yes", "@google/design.md@0.4.0", ...args], { cwd: repositoryRoot, encoding: "utf8" });
+  const cli = fileURLToPath(import.meta.resolve('@google/design.md'));
+  const installed = JSON.parse(readFileSync(path.resolve(path.dirname(cli), '../package.json'), 'utf8'));
+  if (installed.version !== '0.4.0') fail('design.md 校验器必须使用锁定的 0.4.0 版本');
+  const result = spawnSync(process.execPath, [cli, ...args], { cwd: repositoryRoot, encoding: "utf8", timeout: 60000 });
   if (result.error || result.status !== 0) fail(result.stderr?.trim() || result.stdout?.trim() || "design.md CLI 执行失败");
+  if (!result.stdout?.trim()) fail('design.md CLI 未返回结果，不能视为通过');
   return result.stdout;
 }
 

@@ -13,6 +13,8 @@ const allowed = (candidate) => {
   || relative.startsWith(".template-source/evidence/")
   || relative.includes("/.template-source/evidence/")
   || relative.includes("/tests/")
+  || relative === ".template-source/maintenance/2026-09-06-mvc-environment.md"
+  || relative === ".agents/skills/yss-mvc-scaffold-generator/scripts/restore_environment.test.mjs"
   || relative.endsWith("scripts/verify-retired-skill-ids")
   || relative.endsWith("scripts/lib/skill-supply-chain.mjs")
   || relative.endsWith("scripts/lib/implementation-contract-compiler.mjs");
@@ -28,6 +30,8 @@ if (![0, 1].includes(search.status)) {
 }
 const violations = search.stdout.split(/\r?\n/).filter(Boolean).filter((line) => {
   const match = line.replaceAll("\\", "/").match(/^\.\/(.*?):\d+:/);
+  if (match?.[1] === ".agents/skills/yss-mvc-scaffold-generator/references/mvc-environment-manifest.json"
+      && /^\s*"yss-router": "yss-implementation-contract-compiler"\s*,?\s*$/.test(line.slice(match[0].length))) return false;
   return !match || !allowed(match[1]);
 });
 for (const name of retired) {
