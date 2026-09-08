@@ -1,0 +1,34 @@
+schema_version: 2
+intensity: L3
+classification_reason: 修复已发生的业务完成误报，调整 MVC 身份解析、技能路径、业务准入与完成校验、格式验证和插件生成语义。
+triggers: [historical-important-escape, lifecycle-gate, core-validator, generation-semantics, cross-repo-contract]
+changed_assets:
+  - scripts/lib/repository-mode.mjs
+  - scripts/node-verify-lifecycle-registry.mjs
+  - scripts/verify-yss-dto-openapi-profile
+  - scripts/lib/implementation-contract-compiler.mjs
+  - scripts/lib/development-gate.mjs
+  - scripts/verify-development.mjs
+  - scripts/lib/java-web-style.mjs
+  - scripts/verify-java-web.mjs
+  - scripts/development-gate.test.mjs
+  - docs/process/development-gate.md
+  - docs/process/template-verification-profiles.yaml
+  - .agents/skills/yss-mvc-scaffold-generator
+verification_evidence:
+  - kind: fresh-verification
+    command: node --test scripts/development-gate.test.mjs scripts/acceptance-policy.test.mjs scripts/applicable-standards.test.mjs
+    result: pass
+  - kind: fresh-verification
+    command: node --test .agents/skills/yss-mvc-scaffold-generator/scripts/generate_project.test.mjs .agents/skills/yss-mvc-scaffold-generator/scripts/restore_environment.test.mjs .agents/skills/yss-mvc-scaffold-generator/scripts/migrate_governance.test.mjs
+    result: pass
+  - kind: fresh-verification
+    command: node scripts/run-template-verification --profile fast
+    result: pass
+review_mode: self-check
+escalation: none
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null
