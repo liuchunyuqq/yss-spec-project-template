@@ -4,11 +4,13 @@ import { mkdtempSync, writeFileSync, rmSync, mkdirSync, copyFileSync } from 'nod
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import {generateKeyPairSync,sign} from 'node:crypto';
 import { missingChecks, readProjectDocument, validateDevelopmentGate } from './lib/development-gate.mjs';
 import { resolveApplicableStandards } from './lib/applicable-standards.mjs';
 import { fileDigest, contentDigest, evidenceKey } from './lib/acceptance-policy.mjs';
 import { readRepositoryMode } from './lib/repository-mode.mjs';
 import { checkJavaWebStyle } from './lib/java-web-style.mjs';
+import { runCheck, captureBaseline } from './lib/execution-evidence.mjs';
 
 test('MVC 身份支持可选 Profile，拒绝未知字段和越界路径', t => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'mvc-identity-'));
@@ -81,6 +83,12 @@ test('完整验收通过；缺少数据模型、合同检查、整体检查或�
   const bundle = resolveApplicableStandards({ baseline_ref: 'baseline.md', context_refs: ['spec.md', 'model.md'], work_units: [{ id: 'save', required_skills: [], impacts: ['persistence-impact'] }] }, { projectRoot: root, skillRoot: path.join(root, '.agents/skills') });
   put('standards.json', bundle);
   const contract = { status: 'validated', contract_version: '1', acceptance_ids: ['AC-1'], allowed_write_paths: ['service.java'], required_checks: ['mvnw test'], artifacts: { spec: 'spec.md', data_model: 'model.md' }, resolution: { applicable_standards: bundle } };
+  // 此夹具只测试门禁协议，声明能力的业务真实性由独立 Review 核实，不作为数据库验收证据。
+  contract.required_checks = [`${process.execPath} --version`];
+  contract.verification_plan = [{ id:'db', command:contract.required_checks[0], program:process.execPath, args:['--version'], environment:'fixture',input_paths:['service.java'], type:'database-integration', capabilities:['persistence','restart','transaction','non-mock-wiring'] }];
+  contract.persistence_tasks = Object.fromEntries(['entity','mapper','database_implementation','transaction','storage'].map(k => [k, 'service.java']));
+  contract.artifacts.requirements = 'requirements.json';
+  put('requirements.json', {schema_version:1,acceptance_ids:['AC-1'],requirements:[{requirement_id:'REQ-1',source:{ref:'spec.md',digest:fileDigest('spec.md',root),location:'验收',kind:'body',excerpt:'保存后重新查询获得相同数据'},disposition:'in-scope',acceptance_ids:['AC-1'],rule_ids:[],scenario_ids:['SC-1']}],rules:[],scenarios:[{scenario_id:'SC-1',acceptance_ids:['AC-1'],given:'保存',when:'查询',then:'数据一致',check_ids:['db']}]});
   put('contract.json', contract);
   const inputs = { 'service.java': fileDigest('service.java', root) };
   const candidate = contentDigest(inputs);
@@ -89,7 +97,41 @@ test('完整验收通过；缺少数据模型、合同检查、整体检查或�
   put('slice-review.json', review('slice')); put('overall-review.json', review('overall'));
   const check = (command, ref) => { const evidence = { command, environment: 'fixture', inputs, exit_code: 0, executed_at: '2026-09-08T09:00:00Z' }; evidence.key = evidenceKey(evidence); put(ref, evidence); return { command, environment: evidence.environment, key: evidence.key, evidence_ref: ref }; };
   const state = { schema_version: 2, policy_id: 'acceptance-driven-v1', standards_context_version: 1, goal: '保存并查询报送记录', baseline_ref: 'baseline.md', baseline_digest: baseline, acceptance_ids: ['AC-1'], status: 'completed', blockers: [], slices: [{ id: 'save', status: 'completed', acceptance_ids: ['AC-1'], standards_ref: 'standards.json', standards_digest: bundle.digest, active_work_unit: 'save', contract_ref: 'contract.json', contract_version: '1', candidate_digest: candidate, review_ref: 'slice-review.json', checks: [check('mvnw test', 'test.json')] }], overall: { candidate_digest: candidate, review_ref: 'overall-review.json', checks: [check('mvnw package', 'package.json')] } };
+  const reviewDefinition = scope => {
+    const {publicKey,privateKey}=generateKeyPairSync('ed25519');
+    put('docs/process/review-runtime-trust.json',{schema_version:1,hosts:[{id:'fixture-host',public_key:publicKey.export({type:'spki',format:'pem'})}]});
+    const payload={actor_instance_id:'reviewer',implementer_instance_ids:['worker'],dispatch_id:'fixture-dispatch',host_event_ref:'.yss/evidence/fixture-host-event.json',candidate_digest:candidate,acceptance_ids:['AC-1'],findings:[],result:'pass',started_at:new Date().toISOString(),ended_at:new Date().toISOString()};
+    put(payload.host_event_ref,{host_id:'fixture-host',payload,signature:sign(null,Buffer.from(JSON.stringify(payload)),privateKey).toString('base64')});
+    const args=['-e',`console.log(${JSON.stringify(JSON.stringify(payload))})`];
+    return {id:scope+'-review',type:'review',capabilities:['independent-review'],program:process.execPath,args,command:[process.execPath,...args].join(' '),environment:'fixture',input_paths:['service.java']};
+  };
+  contract.verification_plan.push(reviewDefinition('slice'));
+  contract.required_checks=contract.verification_plan.map(c=>c.command); put('contract.json',contract);
+  const asCheck=receipt=>({command:receipt.command,environment:receipt.environment,key:receipt.key,evidence_ref:receipt.evidence_ref});
+  state.slices[0].checks=contract.verification_plan.map(c=>asCheck(runCheck(root,contract,c)));
+  put('slice-review.json',{...review('slice'),execution_ref:state.slices[0].checks[1].evidence_ref});
+  const packageCheck={...contract.verification_plan[0],id:'package',type:'unit',capabilities:['fixture']};
+  state.overall.verification_plan=[packageCheck,reviewDefinition('overall')];
+  const overallContract={allowed_write_paths:contract.allowed_write_paths,artifacts:contract.artifacts,required_checks:state.overall.verification_plan.map(c=>c.command),verification_plan:state.overall.verification_plan};
+  put('docs/process/implementation-repo-registry.yaml',{projects:[{project_root:'.',verification_commands:overallContract.required_checks}]});
+  state.overall.checks=overallContract.verification_plan.map(c=>asCheck(runCheck(root,overallContract,c)));
+  // 两次构造使用同一测试宿主事件后，重新捕获切片回执，确保信任配置摘要当前。
+  state.slices[0].checks=contract.verification_plan.map(c=>asCheck(runCheck(root,contract,c)));
+  put('slice-review.json',{...review('slice'),execution_ref:state.slices[0].checks[1].evidence_ref});
+  put('overall-review.json',{...review('overall'),execution_ref:state.overall.checks[1].evidence_ref});
+  state.overall.checkpoint_ref='checkpoint.json';
+  state.overall.baseline_snapshot_ref=captureBaseline(root,['checkpoint.json','slice-review.json','overall-review.json']);
   assert.deepEqual(validateDevelopmentGate(root, state, 'completion'), []);
+  put('spec.md', '# 验收\nAC-1：保存后重新查询获得相同数据。\nAC-2：重启后保留数据。');
+  assert.match(validateDevelopmentGate(root,state,'completion').join('\n'),/Spec 验收未完整覆盖: AC-2/);
+  put('spec.md', '# 验收\nAC-1：保存后重新查询获得相同数据。');
+  const wrongId = structuredClone(state);
+  wrongId.status = 'running';
+  wrongId.acceptance_ids = ['AC-01'];
+  assert.match(validateDevelopmentGate(root, wrongId, 'implementation').join('\n'), /验收.*精确|精确.*验收/);
+  contract.allowed_write_paths = ['wrong-project-core/src']; put('contract.json', contract);
+  assert.match(validateDevelopmentGate(root, state, 'implementation').join('\n'), /路径.*模块|模块.*路径/);
+  contract.allowed_write_paths = ['service.java']; put('contract.json', contract);
   delete contract.artifacts.data_model; put('contract.json', contract);
   assert.match(validateDevelopmentGate(root, state, 'implementation').join('\n'), /data_model/);
   contract.artifacts.data_model = 'model.md'; put('contract.json', contract);

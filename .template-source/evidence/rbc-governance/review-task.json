@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "role_id": "role.test-engineer",
+  "skill_source": {
+    "registry_ref": "docs/agents/digital-human-roles.yaml",
+    "defaults_ref": "taskPackageDefaults(role.test-engineer)",
+    "core_skills": [
+      "tdd",
+      "diagnosing-bugs",
+      "code-review",
+      "alibaba-java-code-style",
+      "yss-ui",
+      "yss-design-system",
+      "yss-page-module-development",
+      "yss-domain",
+      "yss-application",
+      "yss-repository",
+      "yss-web-controller",
+      "yss-dto",
+      "mapstruct",
+      "lombok"
+    ],
+    "forbidden_skills": [
+      "yss-ddd-scaffold-generator",
+      "yss-frontend-scaffold-generator",
+      "implement",
+      "to-spec"
+    ]
+  },
+  "task_id": "rbc-governance-review",
+  "work_unit_id": "work-unit.code-review",
+  "actor_id": "rbc-governance-independent-reviewer",
+  "runtime_id": "runtime.skill-projection",
+  "execution_state": "Reviewer",
+  "workflow_status": "active",
+  "stage_id": "stage.verification-release-retrospective",
+  "contract": {
+    "kind": "lifecycle-work-unit",
+    "contract_id": "rbc-governance-review",
+    "contract_version": 2,
+    "status": "issued",
+    "contract_ref": ".template-source/evidence/rbc-governance/implementation.md",
+    "lifecycle_ref": "docs/process/acceptance-policy.yaml"
+  },
+  "inputs": [
+    ".template-source/evidence/rbc-governance/implementation.md",
+    "CONTEXT.md",
+    "docs/process/development-gate.md",
+    ".agents/skills/yss-mvc-scaffold-generator/scripts/lib/templates.mjs",
+    ".agents/skills/yss-mvc-scaffold-generator/scripts/lib/storage.mjs",
+    ".agents/skills/yss-mvc-scaffold-generator/scripts/lib/governance-migration.mjs"
+  ],
+  "objective": "复核 R1-R5 修复，检查最新 MVC 生成/迁移与发布同步，报告仍未完成的能力；不修改实现",
+  "allowed_write_paths": [
+    ".template-source/evidence/rbc-governance/review.md"
+  ],
+  "forbidden_actions": [
+    "修改实现或测试",
+    "修改 RBC 业务代码",
+    "提交或推送",
+    "伪造执行或独立身份"
+  ],
+  "expected_outputs": [
+    "按文件行定位 findings 和未完成项"
+  ],
+  "expected_evidence_files": [
+    ".template-source/evidence/rbc-governance/review.md"
+  ],
+  "verification_commands": [
+    "node --test scripts/development-gate.test.mjs scripts/contract-integrity.test.mjs scripts/execution-evidence.test.mjs scripts/mvc-structure.test.mjs scripts/verification-plan.test.mjs"
+  ],
+  "verification_results": [],
+  "review_context": {
+    "implementation_actor_id": "root"
+  },
+  "downstream_consumers": [
+    "root"
+  ],
+  "convergence": {
+    "parent_work_unit": "work-unit.code-review",
+    "convergence_ref": ".template-source/evidence/rbc-governance/implementation.md"
+  }
+}
