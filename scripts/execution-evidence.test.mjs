@@ -36,3 +36,18 @@ test('G02/G16 无 HEAD 初始快照发现新增/删除文件；改 reviewer 名�
   assert.deepEqual(changedSinceBaseline(root,ref,[]).sort(),['outside.txt','source.txt']);
   assert.ok(verifyReviewRuntime(root,{reviewer:'another-name'},{}).length);
 });
+
+test('原生子 agent Review 无宿主配置通过，缺记录、自审和绑定不一致失败', t=>{
+  const root=mkdtempSync(path.join(os.tmpdir(),'subagent-review-'));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const review={execution_ref:'review-run.json',reviewer:'reviewer-1',implementers:['worker-1'],candidate_digest:'candidate-1',acceptance_ids:['AC-1'],findings:[],result:'pass'};
+  const record={kind:'subagent-review',actor_instance_id:review.reviewer,implementer_instance_ids:review.implementers,dispatch_id:'dispatch-1',candidate_digest:review.candidate_digest,acceptance_ids:review.acceptance_ids,findings:[],result:'pass',started_at:new Date().toISOString(),ended_at:new Date().toISOString()};
+  const put=value=>writeFileSync(path.join(root,review.execution_ref),JSON.stringify(value));
+  assert.ok(verifyReviewRuntime(root,review,{}).length);
+  put(record);
+  assert.deepEqual(verifyReviewRuntime(root,review,{}),[]);
+  for(const delta of [{actor_instance_id:'worker-1'},{implementer_instance_ids:['someone-else']},{dispatch_id:''},{candidate_digest:'stale'},{acceptance_ids:['AC-2']},{findings:['unresolved']},{result:'fail'},{started_at:'invalid'},{ended_at:'2999-01-01T00:00:00Z'}]) {
+    put({...record,...delta});
+    assert.ok(verifyReviewRuntime(root,review,{}).length,JSON.stringify(delta));
+  }
+});
