@@ -1,0 +1,1 @@
+{"isolated_plugin":"pass","real_git_clone_restore":"pass","project_git_clean":"pass","environment_digest_equal":"pass","mvc_skills":38,"sync_negative":"pass","agent_discovery":"not-verified"}

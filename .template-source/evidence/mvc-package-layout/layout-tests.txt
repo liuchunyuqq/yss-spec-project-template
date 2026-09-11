@@ -1,0 +1,17 @@
+✔ MVC 实际 Controller 改名 Endpoint 仍不能放在 server.rbc (971.5748ms)
+✔ 实现前门禁不信任 validated；角色包、模块、路径、写入范围全部校验 (103.2553ms)
+✔ 实际 AST 职责覆盖改名、限定名、Advice、Schedule、Configuration、Entity、Mapper、MapStruct (1918.6236ms)
+✔ 漏登记、多顶层、成员类型、包目录偏差和虚假职责不能绕过 (1852.6109ms)
+✔ 本项目继承、相对嵌套父类、元注解、无后缀实体与静态导入 (1018.9873ms)
+✔ Application 明确例外；DTO 和 Processor 无信号要求明确职责 (3459.67ms)
+✔ 真实 Git 变化覆盖未跟踪、暂存和工作区；未修改历史不强迫迁移 (3147.5726ms)
+✔ 无影响标签也加载规则；恢复校验合同，规则变化使规范和执行回执失效 (743.2759ms)
+✔ 真实实现门禁接受合法计划；自填 validated 的坏包和伪装静态检查仍失败 (227.6201ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13550.9071

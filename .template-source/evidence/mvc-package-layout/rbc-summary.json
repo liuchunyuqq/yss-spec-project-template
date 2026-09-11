@@ -1,0 +1,21 @@
+{
+  "audited_at": "2026-09-11T02:39:07.447Z",
+  "project": "C:/project/gshw-new/yss-datamiddle-report-filling",
+  "source_types": 57,
+  "files_compared": 320,
+  "changed_files": [
+    ".idea/workspace.xml"
+  ],
+  "business_and_governance_changes": [],
+  "diagnostics": 54,
+  "rule_counts": {
+    "mvc.layout.plan": 39,
+    "mvc.layout.convertor": 1,
+    "mvc.layout.entity": 4,
+    "mvc.layout.mapper": 4,
+    "mvc.layout.configuration": 2,
+    "mvc.layout.controller": 2,
+    "mvc.layout.advice": 1,
+    "mvc.layout.schedule": 1
+  }
+}

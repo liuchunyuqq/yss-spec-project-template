@@ -1,0 +1,16 @@
+[INFO] Scanning for projects...
+[WARNING] Could not transfer metadata com.yss.cloud:yss-cloud-microservice:2.0.0-SNAPSHOT/maven-metadata.xml from/to yss-internal (${env.YSS_MAVEN_REPOSITORY_URL}): Cannot access ${env.YSS_MAVEN_REPOSITORY_URL} with type default using the available connector factories: BasicRepositoryConnectorFactory
+[ERROR] [ERROR] Some problems were encountered while processing the POMs:
+[FATAL] Non-resolvable parent POM for com.yss.cloud:yss-cloud-microservice:2.0.0: Could not transfer artifact org.springframework.boot:spring-boot-starter-parent:pom:2.7.18 from/to yss-internal (${env.YSS_MAVEN_REPOSITORY_URL}): Cannot access ${env.YSS_MAVEN_REPOSITORY_URL} with type default using the available connector factories: BasicRepositoryConnectorFactory @ com.yss.cloud:yss-cloud-microservice:2.0.0, C:\Users\15540\.m2\repository\com\yss\cloud\yss-cloud-microservice\2.0.0-SNAPSHOT\yss-cloud-microservice-2.0.0-SNAPSHOT.pom, line 5, column 13
+ @ 
+[ERROR] The build could not read 1 project -> [Help 1]
+[ERROR]   
+[ERROR]   The project com.yss.layoutqa:mvc-layout-qa:2.0.0-SNAPSHOT (C:\Users\15540\AppData\Local\Temp\mvc-layout-qa-20260911\project\pom.xml) has 1 error
+[ERROR]     Non-resolvable parent POM for com.yss.cloud:yss-cloud-microservice:2.0.0: Could not transfer artifact org.springframework.boot:spring-boot-starter-parent:pom:2.7.18 from/to yss-internal (${env.YSS_MAVEN_REPOSITORY_URL}): Cannot access ${env.YSS_MAVEN_REPOSITORY_URL} with type default using the available connector factories: BasicRepositoryConnectorFactory @ com.yss.cloud:yss-cloud-microservice:2.0.0, C:\Users\15540\.m2\repository\com\yss\cloud\yss-cloud-microservice\2.0.0-SNAPSHOT\yss-cloud-microservice-2.0.0-SNAPSHOT.pom, line 5, column 13: Cannot access ${env.YSS_MAVEN_REPOSITORY_URL} using the registered transporter factories: WagonTransporterFactory: Unsupported transport protocol -> [Help 2]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException
+[ERROR] [Help 2] http://cwiki.apache.org/confluence/display/MAVEN/UnresolvableModelException

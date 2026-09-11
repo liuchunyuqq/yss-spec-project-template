@@ -1,0 +1,313 @@
+模板核验 profile: fast -> release
+自动升级原因: 核心核验资产变化: docs/process/template-verification-profiles.yaml
+
+[design-system]
+$ node .template-source/tooling/node/scripts/design-md.mjs lint DESIGN.md (445ms)
+{
+  "findings": [
+    {
+      "severity": "info",
+      "message": "Design system defines 15 colors, 6 typography scales, 5 rounding levels, 7 spacing tokens, 15 components.",
+      "rule": "token-summary"
+    }
+  ],
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "infos": 1
+  }
+}
+$ node .template-source/tooling/node/scripts/design-md.mjs drift (148ms)
+DESIGN.md 投影无漂移
+
+[tooling]
+$ .template-source/scripts/evidence-index --check (2335ms)
+证据索引验证通过（complete）
+$ pnpm --dir .template-source/tooling/node test (23642ms)
+
+> yss-template-node-tooling@1.0.0 test C:\project_self\localskill\yss-spec-project-template\.template-source\tooling\node
+> node --test test/**/*.test.mjs
+
+✔ DESIGN.md passes local and pinned upstream lint (848.5818ms)
+✔ DESIGN.md projection manifest is current (258.7213ms)
+✔ cross-repository design sync digest matches DESIGN.md (1.988ms)
+✔ digital human roles are runtime-agnostic and grok is only an adapter (315.5512ms)
+✔ approval records reject the wrong signer and approved countersign gates need approval_ref (15.5029ms)
+✔ Node runtime contract exposes a vendored YAML parser for distributed scripts (25.7311ms)
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+Cloning into 'C:/Users/15540/AppData/Local/Temp/yss-gitlink-bQpuD6/super/apps/backend/billing-service'...
+done.
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+HEAD is now at 837fd3d init child
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+Cloning into 'C:/Users/15540/AppData/Local/Temp/yss-gitlink-qh15XJ/super/apps/backend/billing-service'...
+done.
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+Reset branch 'main'
+✔ YAML aliases are rejected before a repository manifest is materialized (30.3052ms)
+✔ repository mode public seam is executable by Node (1.1978ms)
+✔ vendored XML parser rejects DOCTYPE and preserves scalar text (11.6732ms)
+✔ implementation path policy preserves harness and external-repository boundaries (1.4632ms)
+✔ repository_scope git-submodule is a first-class layout distinct from harness-apps (14548.5233ms)
+✔ Node lifecycle registry verifier preserves the published semantic baseline (663.7425ms)
+✔ public skill export preserves its portable manifest and blocks workstation paths (3516.2921ms)
+warning: in the working copy of '.template-source/evidence/reviews/sample.md', LF will be replaced by CRLF the next time Git touches it
+✔ evidence index writes pending and checkpointed Node records with legacy failure semantics (2138.6042ms)
+✔ unknown layer is rejected (138.2599ms)
+✔ shadow registry cannot be marked as runtime consumed (38.3121ms)
+✔ alias that collides with another id is rejected (37.7672ms)
+✔ missing Cursor runtime root is rejected (62.718ms)
+✔ skill invocation contract is required and derives impact triggers (99.9039ms)
+✔ typed dependency metadata rejects unregistered skills (59.9783ms)
+✔ context-required typed dependencies reject cycles (33.1172ms)
+✔ 实现合同编译器合同不得重复 typed dependency 事实 (117.2425ms)
+✔ platform aliases resolve lifecycle external runtime entries (34.6978ms)
+✔ deprecated research alias resolves to yss-research in lifecycle routes (80.6509ms)
+✔ lifecycle route with an unregistered skill is rejected (55.9824ms)
+✔ prototype design route requires independent prototype-review (56.372ms)
+✔ deprecated skills require migration and cleanup metadata (43.4266ms)
+✔ code-review route without specialist supporting skills is rejected (42.646ms)
+✔ code-review route without review_standards_route is rejected (23.4309ms)
+✔ code-review route cannot replace the unique default review skill (27.7861ms)
+✔ code-review route accepts specialist check inputs on the unique skill (28.3859ms)
+✔ code-review route without finding_disposition is rejected (43.1988ms)
+✔ code-review route cannot let the reviewer write implementation (30.4434ms)
+✔ code-review route forbids mandatory waiver of triggered gates (29.0388ms)
+✔ review_input without finding disposition completion flags is rejected (26.0182ms)
+✔ frontend conditional routes require registered skills (28.8106ms)
+✔ tracked projections absent from the lock cannot escape synchronization checks (1.921ms)
+✔ obsolete canonical residues fail even when they are not in the lock (0.2861ms)
+✔ physical canonical skills must be present in the lock (0.2322ms)
+✔ Cursor is a first-class shared skill projection root (0.2336ms)
+✔ yss-ui 业务项目清单覆盖 22 个 app skills 与项目级 MCP 配置 (2.776ms)
+✔ yss-ui 上游清单拒绝重复 canonical 与缺失 hash (1.5155ms)
+ℹ tests 42
+ℹ suites 0
+ℹ pass 42
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21328.9297
+$ pnpm --dir .template-source/tooling/node check:vendor (2338ms)
+
+> yss-template-node-tooling@1.0.0 check:vendor C:\project_self\localskill\yss-spec-project-template\.template-source\tooling\node
+> node scripts/build-vendor.mjs --check
+
+
+[skills]
+$ scripts/sync-skills --check (506ms)
+skill projections are synchronized
+$ scripts/update-skill-lock --check (403ms)
+skills-lock.json matches distributed skills
+$ scripts/verify-skill-registry (251ms)
+技能路由注册表校验通过（active，102 个共享，2 个平台）
+$ scripts/verify-skill-governance (191ms)
+技能规范冲突扫描通过（4 个兼容 alias，22 个 YSS UI 前端 skills）
+
+[tactical-design]
+$ node --check .agents/skills/yss-tactical-design/scripts/validate-tactical-design.mjs (92ms)
+$ node --check .agents/skills/yss-tactical-design/tests/run-scenarios.mjs (98ms)
+$ node .agents/skills/yss-tactical-design/tests/run-scenarios.mjs (1049ms)
+DDD tactical design scenarios passed
+
+[contracts]
+$ scripts/verify-yss-dto-openapi-profile (153ms)
+YSS DTO OpenAPI wire profile 验证通过
+$ scripts/verify-yss-dto-openapi-scenarios (235ms)
+YSS DTO OpenAPI wire-shape scenarios passed
+$ scripts/verify-openapi-yaml-first-scenarios (119ms)
+OpenAPI YAML-first 场景验证通过
+$ scripts/verify-openapi-json-handoff-scenarios (143ms)
+OpenAPI YAML-first JSON handoff scenarios passed
+
+[collaboration]
+$ scripts/verify-digital-human-roles (203ms)
+数字人角色注册表校验通过（6 个角色，7 个协作组，3 个运行时）
+$ scripts/verify-digital-human-roles-scenarios (830ms)
+数字人角色压力场景验证通过
+$ scripts/verify-approval-record docs/templates/approval-record-template.yaml (543ms)
+会签记录校验通过
+$ scripts/verify-subagent-task-package-scenarios (2161ms)
+数字人全生命周期任务包压力场景验证通过
+$ scripts/verify-digital-human-task-package-scenarios (2437ms)
+数字人全生命周期任务包压力场景验证通过
+$ scripts/verify-digital-human-task-package .template-source/evidence/maintenance/digital-human-task-package-review-task.yaml (276ms)
+数字人任务包验证通过
+$ scripts/verify-digital-human-task-package .template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml (257ms)
+数字人任务包验证通过
+
+[lifecycle]
+$ node --test scripts/development-gate.test.mjs scripts/contract-integrity.test.mjs scripts/execution-evidence.test.mjs scripts/mvc-structure.test.mjs scripts/mvc-package-layout.test.mjs scripts/verification-plan.test.mjs (29434ms)
+✔ G02 正确新文件允许；错误模块、越界和候选超范围拒绝 (28.7107ms)
+✔ G03 description-only、缺路径参数、悬空 schema 拒绝；具体响应和下载允许 (2.2838ms)
+✔ G01/G11 来源遗漏、摘要变化、AC 缩写和语义变更无裁决拒绝 (2.8607ms)
+✔ 列表查询的行来源约束同时适用 POST 和 GET，显式批量写操作可单独声明 (0.4953ms)
+✔ MVC 身份支持可选 Profile，拒绝未知字段和越界路径 (22.4694ms)
+✔ 无过程产物不能宣称完成 (198.7569ms)
+✔ 成功但无关的命令及跳过测试不能覆盖登记命令 (1.1525ms)
+✔ 空产物及越界引用失败 (4.1135ms)
+✔ 新 Controller 缺少文档和单行压缩会失败，规范示例通过 (2.3741ms)
+✔ 完整验收通过；缺少数据模型、合同检查、整体检查或独立审查会失败 (12482.7312ms)
+✔ G15 执行器记录实际成功/失败，手写成功和源码变化拒绝 (2932.0699ms)
+✔ G02/G16 无 HEAD 初始快照发现新增/删除文件；改 reviewer 名无运行记录失败 (115.6724ms)
+✔ 原生子 agent Review 无宿主配置通过，缺记录、自审和绑定不一致失败 (136.8124ms)
+✔ MVC 实际 Controller 改名 Endpoint 仍不能放在 server.rbc (2019.2397ms)
+✔ 实现前门禁不信任 validated；角色包、模块、路径、写入范围全部校验 (223.2802ms)
+✔ 实际 AST 职责覆盖改名、限定名、Advice、Schedule、Configuration、Entity、Mapper、MapStruct (4350.9038ms)
+✔ 漏登记、多顶层、成员类型、包目录偏差和虚假职责不能绕过 (6410.9965ms)
+✔ 本项目继承、相对嵌套父类、元注解、无后缀实体与静态导入 (1692.6493ms)
+✔ 切片签名范围允许前片未提交，仍发现本片未登记及签名篡改 (1694.0337ms)
+✔ 跨切片共享类型按语义合并，键顺序不构成冲突；不同职责不能覆盖 (25.9666ms)
+✔ Application 明确例外；DTO 和 Processor 无信号要求明确职责 (5024.7657ms)
+✔ 真实 Git 变化覆盖未跟踪、暂存和工作区；未修改历史不强迫迁移 (5783.6548ms)
+✔ 无影响标签也加载规则；恢复校验合同，规则变化使规范和执行回执失效 (1473.4786ms)
+✔ 真实实现门禁接受合法计划；自填 validated 的坏包和伪装静态检查仍失败 (392.3853ms)
+✔ G04 AST 识别生产类继承和组合 InMemory，忽略测试源码 (8210.7372ms)
+✔ G05-G08 Entity/MP、Service、Wrapper 和注释检查；合法 XML 不误报 (6090.2826ms)
+✔ G13/G17 Mock 不替代数据库检查，compile 不得伪装 package (5.5099ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29325.3575
+$ node --test scripts/acceptance-policy.test.mjs scripts/init-acceptance-checkpoint.test.mjs (1093ms)
+✔ 明确需求、改名、修复和范围内新依赖均自主推进，真实歧义才提问 (24.3595ms)
+✔ 规范扩展校验当前合同、恢复工作单元和独立审查绑定 (2.4325ms)
+✔ validated 当前切片无需批准即可进入实现，过期与路径缺失不得进入 (5.7359ms)
+✔ 切片与整体审查、集成检查和需求覆盖均通过才完成 (0.3472ms)
+✔ 非零退出码、同一实施审查者、整体集成缺陷和遗漏需求被拒绝 (0.5934ms)
+✔ 无关文件不影响证据，相关代码变化或环境变化拒绝旧证据 (11.5371ms)
+✔ 整体验收列表不能被局部字段覆盖，基线变化必须重新审查 (0.3205ms)
+✔ 新项目需求初始化生成可校验 v2，拒绝覆盖、无验收基线和越界 (902.4334ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1003.3957
+$ node --test scripts/applicable-standards.test.mjs (584ms)
+✔ 实现和 Review 共用结果；HTTP 与查询工作单元只加载各自规范 (105.2993ms)
+✔ 运行时影响在实现前补充专项标准；审查操作不进入实现上下文 (28.0895ms)
+✔ 恢复时检查相关正文、reference 与新增仓库规范；无关文件不使摘要失效 (112.0771ms)
+✔ 解析跨技能引用与 YAML 规范而不误判为本技能文件 (46.9659ms)
+✔ 拒绝缺失、越界、伪造摘要和 MVC 禁止的技能 (36.1606ms)
+✔ 完整编译器冻结规范；缺少闭包覆盖或正文变化不能沿用合同 (62.4771ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 500.5824
+$ node --test .agents/skills/yss-mvc-scaffold-generator/scripts/migrate_governance.test.mjs (662ms)
+✔ 预览不写入；应用仅白名单文件并备份旧内容；再次运行幂等 (186.0165ms)
+✔ 定制冲突拒绝整个应用且保留代码；受管旧文件可迁移 (138.4027ms)
+✔ 旧机器配置定点升级并保留自定义项，非默认 Profile 指针拒绝应用 (135.4456ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 572.3609
+$ scripts/verify-lifecycle-registry (507ms)
+生命周期注册表验证通过（shadow）
+$ scripts/verify-lifecycle-checkpoint docs/process/templates/lifecycle-checkpoint-template.yaml (186ms)
+生命周期 checkpoint 验证通过
+$ scripts/verify-frontend-implementation-evidence --allow-template docs/process/templates/frontend-implementation-plan-template.yaml (688ms)
+前端实现还原 plan 验证通过
+$ scripts/verify-frontend-implementation-evidence --allow-template docs/process/templates/frontend-implementation-verification-template.yaml (928ms)
+前端实现还原 verification 验证通过
+$ scripts/verify-lifecycle-scenarios (3060ms)
+六类生命周期压力场景验证通过
+$ scripts/verify-lifecycle-transition-scenarios (156ms)
+生命周期转换压力场景验证通过
+
+[maintenance]
+$ scripts/verify-maintenance-checkpoint .template-source/evidence/maintenance/yss-tactical-design-l3-checkpoint-2026-08-27.yaml (219ms)
+模板维护 checkpoint 验证通过（L3，最低 L3，release-ready）
+$ scripts/verify-maintenance-intensity-scenarios (403ms)
+模板维护 L1/L2/L3 强度场景验证通过
+$ node scripts/verify-maintenance-review-workflow-scenarios (1930ms)
+模板维护审查两轮收敛场景验证通过
+
+[implementation]
+$ scripts/verify-implementation-path-scenarios (416ms)
+实现项目路径策略压力场景验证通过
+$ scripts/verify-repository-scope-scenarios (16560ms)
+named stress unknown_scope: PASS
+named stress layout_mismatch: PASS
+named stress same_origin_url: PASS
+named stress copy_source_into_harness: PASS
+named stress missing_git_entry_mode: PASS
+named stress empty_gitlink_as_regular_dir: PASS
+named stress declared_harness_apps_actual_gitlink: PASS
+named stress detached_head_as_regular_dir: PASS
+named stress force_overlay_mount: PASS
+实现仓库 repository_scope 压力场景验证通过
+$ scripts/verify-scaffold-generator-scenarios (2837ms)
+YSS 脚手架生成器受控生成场景验证通过
+$ scripts/verify-prototype-backend-scaffold-scenarios (164ms)
+原型到后端脚手架及后续 YSS 代码生成压力场景验证通过
+$ scripts/verify-matt-yss-integration-scenarios (275ms)
+Matt/YSS 集成压力场景验证通过
+$ scripts/verify-yss-implementation-contract-compiler-scenarios (619ms)
+YSS implementation contract compiler stage 7 scenarios passed
+✔ combines narrow recipes once and preserves deterministic output (30.7146ms)
+✔ does not promote conditional or component dependencies without explicit input (5.4988ms)
+✔ loads only explicitly satisfied context-conditional dependencies (1.8791ms)
+✔ rejects recipes that reference skills and context-required cycles (3.8719ms)
+✔ rejects removed ids and schema v1 without compatibility (0.5926ms)
+✔ marks digest drift stale and validates v2 execution evidence (12.7562ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 331.6359
+$ scripts/generate-yss-skill-boundaries --check (256ms)
+YSS skill boundaries are current
+$ scripts/audit-yss-backend-skills --check (245ms)
+backend skill audit passed: 25 candidates (keep=25, narrow=0, merge=0, remove=0)
+$ scripts/verify-retired-skill-ids (353ms)
+retired skill ids are absent from active assets
+$ scripts/verify-yss-ui-scenarios (148ms)
+YSS UI governance scenarios passed
+$ scripts/verify-yss-prototype-contract-scenarios (182ms)
+YSS prototype profile contract scenarios passed
+$ node .agents/skills/yss-prototype-stage/scripts/prototype-contract.mjs validate-evidence docs/design/templates/prototype-evidence-template.yaml --allow-template (197ms)
+prototype evidence passed
+
+[governance-release]
+$ scripts/verify-governance-release (146ms)
+
+[candidate-integrity]
+$ node scripts/verify-template-verification-scenarios (264ms)
+模板三级核验路由场景验证通过
+$ node scripts/verify-template-cache-scenarios (3020ms)
+远程模板 commit 缓存场景验证通过
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+Cloning into 'C:/Users/15540/AppData/Local/Temp/yss-gitlink-uApPoj/super/apps/backend/billing-service'...
+done.
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+HEAD is now at 837fd3d init child
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+Cloning into 'C:/Users/15540/AppData/Local/Temp/yss-gitlink-bJSPqs/super/apps/backend/billing-service'...
+done.
+warning: in the working copy of '.gitmodules', LF will be replaced by CRLF the next time Git touches it
+Reset branch 'main'
+模板核验通过（release）

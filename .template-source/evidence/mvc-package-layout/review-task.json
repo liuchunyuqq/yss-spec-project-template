@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "task_id": "mvc-layout-slice-review",
+  "work_unit_id": "work-unit.code-review",
+  "actor_id": "mvc-layout-reviewer",
+  "role_id": "role.test-engineer",
+  "runtime_id": "runtime.generic",
+  "execution_state": "Reviewer",
+  "workflow_status": "active",
+  "skill_source": {
+    "registry_ref": "docs/agents/digital-human-roles.yaml",
+    "defaults_ref": "taskPackageDefaults(role.test-engineer)",
+    "core_skills": [
+      "tdd",
+      "diagnosing-bugs",
+      "code-review",
+      "alibaba-java-code-style",
+      "yss-ui",
+      "yss-design-system",
+      "yss-page-module-development",
+      "yss-domain",
+      "yss-application",
+      "yss-repository",
+      "yss-web-controller",
+      "yss-dto",
+      "mapstruct",
+      "lombok"
+    ],
+    "forbidden_skills": [
+      "yss-ddd-scaffold-generator",
+      "yss-frontend-scaffold-generator",
+      "implement",
+      "to-spec"
+    ]
+  },
+  "contract": {
+    "kind": "lifecycle-work-unit",
+    "contract_id": "mvc-layout-review",
+    "contract_version": 1,
+    "status": "issued",
+    "contract_ref": ".template-source/evidence/mvc-package-layout/plan.md",
+    "lifecycle_ref": "docs/process/lifecycle-registry.yaml"
+  },
+  "inputs": [
+    ".template-source/evidence/mvc-package-layout/plan.md",
+    "docs/process/mvc-package-layout.yaml",
+    "scripts/lib/mvc-package-layout.mjs",
+    "scripts/lib/java/MvcAst.java"
+  ],
+  "allowed_read_paths": [
+    "scripts",
+    "docs",
+    ".agents/skills/yss-mvc-scaffold-generator",
+    ".template-source/evidence/mvc-package-layout"
+  ],
+  "objective": "独立审查切片1规则和AST、切片2门禁接入。实际代码和反例独立核对；指出既有规则违反与个人建议的区别。仅写报告，不修实现。",
+  "allowed_write_paths": [
+    ".template-source/evidence/mvc-package-layout/slice-review.md"
+  ],
+  "forbidden_actions": [
+    "修改实现",
+    "修改业务样本",
+    "提交或发布"
+  ],
+  "expected_outputs": [
+    "切片分别裁决，具体可复现 findings"
+  ],
+  "expected_evidence_files": [
+    ".template-source/evidence/mvc-package-layout/slice-review.md"
+  ],
+  "verification_commands": [
+    "node --test scripts/mvc-package-layout.test.mjs"
+  ],
+  "verification_results": [],
+  "review_context": {
+    "implementation_actor_id": "root"
+  },
+  "downstream_consumers": [
+    "root"
+  ],
+  "convergence": {
+    "parent_work_unit": "work-unit.code-review",
+    "convergence_ref": ".template-source/evidence/mvc-package-layout/plan.md"
+  }
+}

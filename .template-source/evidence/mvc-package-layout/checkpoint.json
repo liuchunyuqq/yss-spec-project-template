@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "intensity": "L3",
+  "classification_reason": "生命周期门禁、生成语义及跨仓修订，补历史漏检；用户明确要求独立审查。",
+  "triggers": [
+    "lifecycle-gate",
+    "generation-semantics",
+    "cross-repo-contract",
+    "historical-important-escape"
+  ],
+  "changed_assets": [
+    "docs/process/mvc-package-layout.yaml",
+    "scripts/lib/mvc-package-layout.mjs",
+    "scripts/lib/development-gate.mjs",
+    ".agents/skills/yss-mvc-scaffold-generator"
+  ],
+  "verification_evidence": [
+    {
+      "kind": "counterexample",
+      "command": ".template-source/evidence/mvc-package-layout/plan.md",
+      "result": "pass"
+    },
+    {
+      "kind": "fresh-verification",
+      "command": ".template-source/evidence/mvc-package-layout/template-verification-final.txt",
+      "result": "pass"
+    },
+    {
+      "kind": "focused-independent-review",
+      "command": ".template-source/evidence/mvc-package-layout/final-review.md",
+      "result": "pass"
+    }
+  ],
+  "review_mode": "self-check",
+  "escalation": "none",
+  "target_state": "implementation-ready",
+  "current_state": "implementation-ready",
+  "verification_profile": "fast",
+  "review_round": 0,
+  "candidate_digest": null
+}
